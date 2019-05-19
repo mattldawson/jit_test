@@ -13,32 +13,48 @@
 
 #include "ClassicDeriv.h"
 #include "JitDeriv.h"
+#include <assert.h>
 #include <chrono>
 #include <iostream>
-
-#define NUM_RXNS 500
+#include <stdlib.h>
 
 using namespace jit_test;
 
 int main() {
-  ClassicDeriv classicDeriv(NUM_RXNS);
-  JitDeriv jitDeriv(NUM_RXNS);
+  ClassicDeriv classicDeriv{};
+  JitDeriv jitDeriv{classicDeriv};
+  double *state;
+  double *fClassic;
+  double *fJit;
+
+  state = (double *)malloc(classicDeriv.numSpec * sizeof(double));
+  fClassic = (double *)calloc(classicDeriv.numSpec, sizeof(double));
+  fJit = (double *)calloc(classicDeriv.numSpec, sizeof(double));
+
+  for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec)
+    state[i_spec] = (rand() % 100) / 100.0;
 
   auto start = std::chrono::high_resolution_clock::now();
-  classicDeriv.Solve();
+  classicDeriv.Solve(state, fClassic);
   auto stop = std::chrono::high_resolution_clock::now();
 
   auto classicTime =
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
   start = std::chrono::high_resolution_clock::now();
-  jitDeriv.Solve();
+  jitDeriv.Solve(state, fJit);
   stop = std::chrono::high_resolution_clock::now();
 
   auto jitTime =
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
+  for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec) {
+    std::cout << std::endl << "f[" << i_spec << "] = " << fClassic[i_spec];
+    /* assert(fClassic[i_spec] == fJit[i_spec]); */
+  }
+
   std::cout << std::endl
+            << std::endl
             << "Classic: " << classicTime.count()
             << "; JIT: " << jitTime.count() << std::endl;
 

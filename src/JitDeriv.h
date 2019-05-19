@@ -17,10 +17,12 @@
 
 namespace jit_test {
 
+class ClassicDeriv;
+
 class JitDeriv {
 public:
-  JitDeriv(const int numRxns);
-  void Solve();
+  JitDeriv(ClassicDeriv classicDeriv);
+  void Solve(const double *const state, double *const deriv);
 };
 }
 #endif // COM_JITDERIV_H

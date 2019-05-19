@@ -12,9 +12,10 @@
 //===----------------------------------------------------------------------===//
 
 #include "JitDeriv.h"
+#include "ClassicDeriv.h"
 
 namespace jit_test {
 
-JitDeriv::JitDeriv(const int numRxns) {}
-void JitDeriv::Solve() {}
+JitDeriv::JitDeriv(ClassicDeriv classicDeriv) {}
+void JitDeriv::Solve(const double *const state, double *const deriv) {}
 } // namespace jit_test

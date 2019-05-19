@@ -15,12 +15,22 @@
 #ifndef COM_CLASSICDERIV_H
 #define COM_CLASSICDERIV_H
 
+#define NUM_RXNS 500
+#define NUM_SPEC 100
+
 namespace jit_test {
 
 class ClassicDeriv {
 public:
-  ClassicDeriv(const int numRxns);
-  void Solve();
+  ClassicDeriv();
+  void Solve(const double *const state, double *const deriv);
+  int numRxns = NUM_RXNS;
+  int numSpec = NUM_SPEC;
+  double rateConst[NUM_RXNS];
+  int numReact[NUM_RXNS];
+  int numProd[NUM_RXNS];
+  int reactId[NUM_RXNS][3];
+  int prodId[NUM_RXNS][10];
 };
 }
 #endif // COM_CLASSICDERIV_H
