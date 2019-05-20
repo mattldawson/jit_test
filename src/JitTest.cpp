@@ -21,21 +21,9 @@
 using namespace jit_test;
 
 int main() {
-  auto JTMB = llvm::orc::JITTargetMachineBuilder::detectHost();
-  if (!JTMB) {
-    std::cout << std::endl
-              << "Error creating TargetMachineBuilder" << std::endl;
-    return 1;
-  }
-
-  auto DL = JTMB->getDefaultDataLayoutForTarget();
-  if (!DL) {
-    std::cout << std::endl << "Error creating DataLayout" << std::endl;
-    return 1;
-  }
 
   ClassicDeriv classicDeriv{};
-  JitDeriv jitDeriv{std::move(*JTMB), std::move(*DL), classicDeriv};
+  JitDeriv jitDeriv{classicDeriv};
   double *state;
   double *fClassic;
   double *fJit;
