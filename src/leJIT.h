@@ -24,6 +24,7 @@
 #include "llvm/ExecutionEngine/SectionMemoryManager.h"
 #include "llvm/IR/DataLayout.h"
 #include "llvm/IR/LLVMContext.h"
+#include "llvm/Support/TargetSelect.h"
 #include <memory>
 
 namespace llvm {
@@ -51,6 +52,7 @@ public:
   }
 
   static Expected<std::unique_ptr<leJIT>> Create() {
+    InitializeNativeTarget();
     auto JTMB = JITTargetMachineBuilder::detectHost();
 
     if (!JTMB)

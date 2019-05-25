@@ -51,7 +51,7 @@ int main() {
 
   for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec) {
     std::cout << std::endl << "f[" << i_spec << "] = " << fClassic[i_spec];
-    /* assert(fClassic[i_spec] == fJit[i_spec]); */
+    // assert(fClassic[i_spec] == fJit[i_spec]);
   }
 
   std::cout << std::endl
