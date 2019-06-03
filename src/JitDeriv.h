@@ -17,9 +17,6 @@
 
 #include "leJIT.h"
 #include "llvm/IR/Constants.h"
-#include "llvm/IR/IRBuilder.h"
-#include "llvm/IR/LLVMContext.h"
-#include "llvm/IR/Module.h"
 
 namespace jit_test {
 
