@@ -17,6 +17,13 @@
 namespace jit_test {
 
 JitDeriv::JitDeriv(ClassicDeriv classicDeriv)
-    : myJIT{std::move(*llvm::orc::leJIT::Create())} {}
+    : myJIT{std::move(*llvm::orc::leJIT::Create())} {
+}
 void JitDeriv::Solve(const double *const state, double *const deriv) {}
+llvm::Value *JitDeriv::DerivCodeGen() {
+  static llvm::LLVMContext myContext;
+  static std::unique_ptr<llvm::Module> module;
+  static llvm::IRBuilder<> builder(myContext);
+  return llvm::ConstantFP::get(myContext, llvm::APFloat(12.2));
+}
 } // namespace jit_test

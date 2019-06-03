@@ -42,6 +42,14 @@ int main() {
   auto classicTime =
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
+  if (auto *derivIR = jitDeriv.DerivCodeGen()) {
+    fprintf(stderr, "Prepare function definition:\n");
+    derivIR->print(llvm::errs());
+    fprintf(stderr, "\n");
+  } else {
+    fprintf(stderr, "Error preparing function definition\n");
+  }
+
   start = std::chrono::high_resolution_clock::now();
   jitDeriv.Solve(state, fJit);
   stop = std::chrono::high_resolution_clock::now();

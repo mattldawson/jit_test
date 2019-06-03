@@ -16,6 +16,10 @@
 #define COM_JITDERIV_H
 
 #include "leJIT.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
 
 namespace jit_test {
 
@@ -25,9 +29,11 @@ class JitDeriv {
 public:
   JitDeriv(ClassicDeriv classicDeriv);
   void Solve(const double *const state, double *const deriv);
+  llvm::Value *DerivCodeGen();
 
 private:
   std::unique_ptr<llvm::orc::leJIT> myJIT;
+
 };
 }
 #endif // COM_JITDERIV_H
