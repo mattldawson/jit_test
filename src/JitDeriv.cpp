@@ -59,7 +59,8 @@ llvm::Value *JitDeriv::DerivCodeGen() {
   // Code generation //
 
   // Prototype
-  std::vector<llvm::Type *> derivArgsV(1, llvm::Type::getDoubleTy(myContext));
+  std::vector<llvm::Type *> derivArgsV(
+      1, llvm::Type::getDoubleTy(myContext)->getPointerTo());
   llvm::FunctionType *derivFunctionType = llvm::FunctionType::get(
       llvm::Type::getDoubleTy(myContext), derivArgsV, false);
   llvm::Function *derivFunction =
@@ -83,7 +84,18 @@ llvm::Value *JitDeriv::DerivCodeGen() {
 
   // input arguments
   std::vector<llvm::Value *> ArgsV;
-  ArgsV.push_back(llvm::ConstantFP::get(myContext, llvm::APFloat(232.5)));
+  std::vector<llvm::Constant *> stateValues;
+  stateValues.push_back(llvm::ConstantFP::get(myContext, llvm::APFloat(12.3)));
+  stateValues.push_back(llvm::ConstantFP::get(myContext, llvm::APFloat(34.24)));
+  stateValues.push_back(llvm::ConstantFP::get(myContext, llvm::APFloat(31.32)));
+  stateValues.push_back(llvm::ConstantFP::get(myContext, llvm::APFloat(21.4)));
+  llvm::Constant *tempFloat =
+      llvm::ConstantFP::get(myContext, llvm::APFloat(12.2));
+  llvm::Constant *stateArray = llvm::ConstantArray::get(
+      llvm::ArrayType::get(tempFloat->getType(), stateValues.size()),
+      stateValues);
+  ArgsV.push_back(stateArray);
+  // ArgsV.push_back(llvm::ConstantFP::get(myContext, llvm::APFloat(232.5)));
   llvm::Value *derivCall =
       builder.CreateCall(derivFunction, ArgsV, "call deriv");
 
