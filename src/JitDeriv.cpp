@@ -38,7 +38,9 @@ static llvm::AllocaInst *CreateEntryBlockAlloca(llvm::Function *TheFunction,
 JitDeriv::JitDeriv(ClassicDeriv classicDeriv)
     : myJIT{std::move(*llvm::orc::leJIT::Create())} {
 }
-void JitDeriv::Solve(const double *const state, double *const deriv) {}
+void JitDeriv::Solve(double *state, double *deriv) {
+  printf("\nDeriv func = %le\n", this->funcPtr(state, deriv));
+}
 void JitDeriv::DerivCodeGen() {
   static llvm::LLVMContext myContext;
   static llvm::IRBuilder<> builder(myContext);
@@ -47,6 +49,7 @@ void JitDeriv::DerivCodeGen() {
 
   // Create module for derivative code
   myModule = llvm::make_unique<llvm::Module>("deriv jit code", myContext);
+  myModule->setDataLayout(myJIT->getDataLayout());
 
   // Optimization settings //
 
@@ -76,7 +79,7 @@ void JitDeriv::DerivCodeGen() {
       llvm::FunctionType::get(dbl, derivArgsV, false);
   llvm::Function *derivFunction =
       llvm::Function::Create(derivFunctionType, llvm::Function::ExternalLinkage,
-                             "deriv", myModule.get());
+                             "derivFunc", myModule.get());
   llvm::Function::arg_iterator argIter = derivFunction->arg_begin();
   llvm::Value *state = argIter++;
   state->setName("state");
@@ -94,13 +97,14 @@ void JitDeriv::DerivCodeGen() {
   builder.CreateStore(state, allocaState);
   builder.CreateStore(deriv, allocaDeriv);
   llvm::Value *statePtr = builder.CreateLoad(allocaState);
+  llvm::Value *derivPtr = builder.CreateLoad(allocaDeriv);
   llvm::Value *idxList[1] = {
       llvm::ConstantInt::get(myContext, llvm::APInt(64, 0))};
   llvm::Value *stateVal = builder.CreateGEP(statePtr, idxList, "stateElem0Ptr");
-  // llvm::Value *stateVal = builder.CreateExtractValue(statePtr, 3);
-  llvm::Value *rate = llvm::ConstantFP::get(myContext, llvm::APFloat(0.0));
-  builder.CreateStore(rate, stateVal);
-  builder.CreateRet(stateVal);
+  llvm::Value *derivVal = builder.CreateGEP(derivPtr, idxList, "derivElem0Ptr");
+  llvm::Value *rate = llvm::ConstantFP::get(myContext, llvm::APFloat(12.25));
+  builder.CreateStore(rate, derivVal);
+  builder.CreateRet(rate);
 
   // Print llvm code
   std::fprintf(stderr, "Generated function definition:\n");
@@ -111,5 +115,14 @@ void JitDeriv::DerivCodeGen() {
   verifyFunction(*derivFunction);
   myFPM->run(*derivFunction);
 
+  // Add the module to the JIT
+  auto H = myJIT->addModule(std::move(myModule));
+
+  // Find the function
+  llvm::JITEvaluatedSymbol exprSymbol = myJIT->lookup("derivFunc").get();
+
+  // Get a pointer to the function
+  this->funcPtr =
+      (double (*)(double *, double *))(intptr_t)exprSymbol.getAddress();
 }
 } // namespace jit_test

@@ -25,12 +25,12 @@ class ClassicDeriv;
 class JitDeriv {
 public:
   JitDeriv(ClassicDeriv classicDeriv);
-  void Solve(const double *const state, double *const deriv);
+  void Solve(double *state, double *deriv);
   void DerivCodeGen();
 
 private:
   std::unique_ptr<llvm::orc::leJIT> myJIT;
-
+  double (*funcPtr)(double *, double *);
 };
 }
 #endif // COM_JITDERIV_H

@@ -22,6 +22,10 @@ using namespace jit_test;
 
 int main() {
 
+  llvm::InitializeNativeTarget();
+  llvm::InitializeNativeTargetAsmPrinter();
+  llvm::InitializeNativeTargetAsmParser();
+
   ClassicDeriv classicDeriv{};
   JitDeriv jitDeriv{classicDeriv};
   double *state;
@@ -52,8 +56,9 @@ int main() {
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
   for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec) {
-    //    std::cout << std::endl << "f[" << i_spec << "] = " <<
-    //    fClassic[i_spec];
+    std::cout << std::endl
+              << "fClassic[" << i_spec << "] = " << fClassic[i_spec]
+              << "  fJit[" << i_spec << "] = " << fJit[i_spec];
     // assert(fClassic[i_spec] == fJit[i_spec]);
   }
 

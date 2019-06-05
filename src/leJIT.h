@@ -52,7 +52,6 @@ public:
   }
 
   static Expected<std::unique_ptr<leJIT>> Create() {
-    InitializeNativeTarget();
     auto JTMB = JITTargetMachineBuilder::detectHost();
 
     if (!JTMB)
