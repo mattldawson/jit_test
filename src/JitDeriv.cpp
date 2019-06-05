@@ -27,6 +27,14 @@
 
 namespace jit_test {
 
+static llvm::AllocaInst *CreateEntryBlockAlloca(llvm::Function *TheFunction,
+                                                llvm::Type *type,
+                                                const std::string &VarName) {
+  llvm::IRBuilder<> TmpB(&TheFunction->getEntryBlock(),
+                         TheFunction->getEntryBlock().begin());
+  return TmpB.CreateAlloca(type, 0, VarName.c_str());
+}
+
 JitDeriv::JitDeriv(ClassicDeriv classicDeriv)
     : myJIT{std::move(*llvm::orc::leJIT::Create())} {
 }
@@ -79,17 +87,24 @@ void JitDeriv::DerivCodeGen() {
   llvm::BasicBlock *BB =
       llvm::BasicBlock::Create(myContext, "entry", derivFunction);
   builder.SetInsertPoint(BB);
+  llvm::AllocaInst *allocaState =
+      CreateEntryBlockAlloca(derivFunction, dblPtr, "state");
+  llvm::AllocaInst *allocaDeriv =
+      CreateEntryBlockAlloca(derivFunction, dblPtr, "deriv");
+  builder.CreateStore(state, allocaState);
+  builder.CreateStore(deriv, allocaDeriv);
   // llvm::Value *stateVal = builder.CreateExtractValue(state, 3);
   llvm::Value *retVal = llvm::ConstantFP::get(myContext, llvm::APFloat(12.2));
   builder.CreateRet(retVal);
-
-  // Optimization //
-  verifyFunction(*derivFunction);
-  myFPM->run(*derivFunction);
 
   // Print llvm code
   std::fprintf(stderr, "Generated function definition:\n");
   derivFunction->print(llvm::errs());
   std::fprintf(stderr, "\n");
+
+  // Optimization //
+  verifyFunction(*derivFunction);
+  myFPM->run(*derivFunction);
+
 }
 } // namespace jit_test
