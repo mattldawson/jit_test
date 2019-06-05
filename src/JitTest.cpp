@@ -42,13 +42,7 @@ int main() {
   auto classicTime =
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
-  if (auto *derivIR = jitDeriv.DerivCodeGen()) {
-    fprintf(stderr, "Prepare function definition:\n");
-    derivIR->print(llvm::errs());
-    fprintf(stderr, "\n");
-  } else {
-    fprintf(stderr, "Error preparing function definition\n");
-  }
+  jitDeriv.DerivCodeGen();
 
   start = std::chrono::high_resolution_clock::now();
   jitDeriv.Solve(state, fJit);
@@ -58,7 +52,8 @@ int main() {
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
   for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec) {
-    std::cout << std::endl << "f[" << i_spec << "] = " << fClassic[i_spec];
+    //    std::cout << std::endl << "f[" << i_spec << "] = " <<
+    //    fClassic[i_spec];
     // assert(fClassic[i_spec] == fJit[i_spec]);
   }
 

@@ -31,7 +31,7 @@ JitDeriv::JitDeriv(ClassicDeriv classicDeriv)
     : myJIT{std::move(*llvm::orc::leJIT::Create())} {
 }
 void JitDeriv::Solve(const double *const state, double *const deriv) {}
-llvm::Value *JitDeriv::DerivCodeGen() {
+void JitDeriv::DerivCodeGen() {
   static llvm::LLVMContext myContext;
   static llvm::IRBuilder<> builder(myContext);
   static std::unique_ptr<llvm::Module> myModule;
@@ -56,49 +56,40 @@ llvm::Value *JitDeriv::DerivCodeGen() {
 
   myFPM->doInitialization();
 
+  // Types
+  llvm::Type *dbl = llvm::Type::getDoubleTy(myContext);
+  llvm::Type *dblPtr = llvm::Type::getDoubleTy(myContext)->getPointerTo();
+
   // Code generation //
 
   // Prototype
-  std::vector<llvm::Type *> derivArgsV(
-      1, llvm::Type::getDoubleTy(myContext)->getPointerTo());
-  llvm::FunctionType *derivFunctionType = llvm::FunctionType::get(
-      llvm::Type::getDoubleTy(myContext), derivArgsV, false);
+  std::vector<llvm::Type *> derivArgsV{dblPtr, dblPtr};
+  llvm::FunctionType *derivFunctionType =
+      llvm::FunctionType::get(dbl, derivArgsV, false);
   llvm::Function *derivFunction =
       llvm::Function::Create(derivFunctionType, llvm::Function::ExternalLinkage,
                              "deriv", myModule.get());
-  for (auto &Arg : derivFunction->args())
-    Arg.setName("state");
+  llvm::Function::arg_iterator argIter = derivFunction->arg_begin();
+  llvm::Value *state = argIter++;
+  state->setName("state");
+  llvm::Value *deriv = argIter++;
+  deriv->setName("deriv");
 
   // function body
   llvm::BasicBlock *BB =
       llvm::BasicBlock::Create(myContext, "entry", derivFunction);
   builder.SetInsertPoint(BB);
+  // llvm::Value *stateVal = builder.CreateExtractValue(state, 3);
   llvm::Value *retVal = llvm::ConstantFP::get(myContext, llvm::APFloat(12.2));
   builder.CreateRet(retVal);
-  std::fprintf(stderr, "Generated function definition:\n");
-  derivFunction->print(llvm::errs());
 
   // Optimization //
   verifyFunction(*derivFunction);
   myFPM->run(*derivFunction);
 
-  // input arguments
-  std::vector<llvm::Value *> ArgsV;
-  std::vector<llvm::Constant *> stateValues;
-  stateValues.push_back(llvm::ConstantFP::get(myContext, llvm::APFloat(12.3)));
-  stateValues.push_back(llvm::ConstantFP::get(myContext, llvm::APFloat(34.24)));
-  stateValues.push_back(llvm::ConstantFP::get(myContext, llvm::APFloat(31.32)));
-  stateValues.push_back(llvm::ConstantFP::get(myContext, llvm::APFloat(21.4)));
-  llvm::Constant *tempFloat =
-      llvm::ConstantFP::get(myContext, llvm::APFloat(12.2));
-  llvm::Constant *stateArray = llvm::ConstantArray::get(
-      llvm::ArrayType::get(tempFloat->getType(), stateValues.size()),
-      stateValues);
-  ArgsV.push_back(stateArray);
-  // ArgsV.push_back(llvm::ConstantFP::get(myContext, llvm::APFloat(232.5)));
-  llvm::Value *derivCall =
-      builder.CreateCall(derivFunction, ArgsV, "call deriv");
-
-  return derivCall;
+  // Print llvm code
+  std::fprintf(stderr, "Generated function definition:\n");
+  derivFunction->print(llvm::errs());
+  std::fprintf(stderr, "\n");
 }
 } // namespace jit_test

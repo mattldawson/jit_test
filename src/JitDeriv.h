@@ -26,7 +26,7 @@ class JitDeriv {
 public:
   JitDeriv(ClassicDeriv classicDeriv);
   void Solve(const double *const state, double *const deriv);
-  llvm::Value *DerivCodeGen();
+  void DerivCodeGen();
 
 private:
   std::unique_ptr<llvm::orc::leJIT> myJIT;
