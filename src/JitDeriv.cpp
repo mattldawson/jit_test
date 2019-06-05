@@ -93,9 +93,14 @@ void JitDeriv::DerivCodeGen() {
       CreateEntryBlockAlloca(derivFunction, dblPtr, "deriv");
   builder.CreateStore(state, allocaState);
   builder.CreateStore(deriv, allocaDeriv);
-  // llvm::Value *stateVal = builder.CreateExtractValue(state, 3);
-  llvm::Value *retVal = llvm::ConstantFP::get(myContext, llvm::APFloat(12.2));
-  builder.CreateRet(retVal);
+  llvm::Value *statePtr = builder.CreateLoad(allocaState);
+  llvm::Value *idxList[1] = {
+      llvm::ConstantInt::get(myContext, llvm::APInt(64, 0))};
+  llvm::Value *stateVal = builder.CreateGEP(statePtr, idxList, "stateElem0Ptr");
+  // llvm::Value *stateVal = builder.CreateExtractValue(statePtr, 3);
+  llvm::Value *rate = llvm::ConstantFP::get(myContext, llvm::APFloat(0.0));
+  builder.CreateStore(rate, stateVal);
+  builder.CreateRet(stateVal);
 
   // Print llvm code
   std::fprintf(stderr, "Generated function definition:\n");
