@@ -40,7 +40,8 @@ int main() {
     state[i_spec] = (rand() % 100) / 100.0;
 
   auto start = std::chrono::high_resolution_clock::now();
-  classicDeriv.Solve(state, fClassic);
+  for (int i_rep = 0; i_rep < 100000; ++i_rep)
+    classicDeriv.Solve(state, fClassic);
   auto stop = std::chrono::high_resolution_clock::now();
 
   auto classicTime =
@@ -49,7 +50,8 @@ int main() {
   jitDeriv.DerivCodeGen(classicDeriv);
 
   start = std::chrono::high_resolution_clock::now();
-  jitDeriv.Solve(state, fJit);
+  for (int i_rep = 0; i_rep < 100000; ++i_rep)
+    jitDeriv.Solve(state, fJit);
   stop = std::chrono::high_resolution_clock::now();
 
   auto jitTime =
@@ -59,7 +61,7 @@ int main() {
     std::cout << std::endl
               << "fClassic[" << i_spec << "] = " << fClassic[i_spec]
               << "  fJit[" << i_spec << "] = " << fJit[i_spec];
-    // assert(fClassic[i_spec] == fJit[i_spec]);
+    assert(fClassic[i_spec] == fJit[i_spec]);
   }
 
   std::cout << std::endl

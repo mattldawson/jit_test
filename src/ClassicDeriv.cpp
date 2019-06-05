@@ -28,6 +28,8 @@ ClassicDeriv::ClassicDeriv() {
   }
 }
 void ClassicDeriv::Solve(const double *const state, double *const deriv) {
+  for (int i_spec = 0; i_spec < NUM_SPEC; ++i_spec)
+    deriv[i_spec] = 0.0;
   for (int i_rxn = 0; i_rxn < this->numRxns; ++i_rxn) {
     double rate = this->rateConst[i_rxn];
     for (int i_react = 0; i_react < this->numReact[i_rxn]; ++i_react)

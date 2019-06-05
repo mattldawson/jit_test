@@ -37,7 +37,7 @@ static llvm::AllocaInst *CreateEntryBlockAlloca(llvm::Function *TheFunction,
 
 JitDeriv::JitDeriv() : myJIT{std::move(*llvm::orc::leJIT::Create())} {}
 void JitDeriv::Solve(double *state, double *deriv) {
-  std::printf("\nDeriv func = %le\n", this->funcPtr(state, deriv));
+  this->funcPtr(state, deriv);
 }
 void JitDeriv::DerivCodeGen(ClassicDeriv cd) {
   static llvm::LLVMContext myContext;
@@ -150,9 +150,11 @@ void JitDeriv::DerivCodeGen(ClassicDeriv cd) {
   builder.CreateRet(rate);
 
   // Print llvm code
+#if 0
   std::fprintf(stderr, "Generated function definition:\n");
   derivFunction->print(llvm::errs());
   std::fprintf(stderr, "\n");
+#endif
 
   // Optimization //
   verifyFunction(*derivFunction);
