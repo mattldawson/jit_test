@@ -18,6 +18,8 @@
 #include <iostream>
 #include <stdlib.h>
 
+#define NUM_REPEAT 1000000
+
 using namespace jit_test;
 
 int main() {
@@ -40,7 +42,7 @@ int main() {
     state[i_spec] = (rand() % 100) / 100.0;
 
   auto start = std::chrono::high_resolution_clock::now();
-  for (int i_rep = 0; i_rep < 100000; ++i_rep)
+  for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
     classicDeriv.Solve(state, fClassic);
   auto stop = std::chrono::high_resolution_clock::now();
 
@@ -50,7 +52,7 @@ int main() {
   jitDeriv.DerivCodeGen(classicDeriv);
 
   start = std::chrono::high_resolution_clock::now();
-  for (int i_rep = 0; i_rep < 100000; ++i_rep)
+  for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
     jitDeriv.Solve(state, fJit);
   stop = std::chrono::high_resolution_clock::now();
 
@@ -67,7 +69,10 @@ int main() {
   std::cout << std::endl
             << std::endl
             << "Classic: " << classicTime.count()
-            << "; JIT: " << jitTime.count() << std::endl;
+            << "; JIT: " << jitTime.count() << std::endl
+            << "JIT speedup: "
+            << ((double)classicTime.count()) / (double)jitTime.count()
+            << std::endl;
 
   return 0;
 }
