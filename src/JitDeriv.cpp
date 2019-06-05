@@ -35,13 +35,11 @@ static llvm::AllocaInst *CreateEntryBlockAlloca(llvm::Function *TheFunction,
   return TmpB.CreateAlloca(type, 0, VarName.c_str());
 }
 
-JitDeriv::JitDeriv(ClassicDeriv classicDeriv)
-    : myJIT{std::move(*llvm::orc::leJIT::Create())} {
-}
+JitDeriv::JitDeriv() : myJIT{std::move(*llvm::orc::leJIT::Create())} {}
 void JitDeriv::Solve(double *state, double *deriv) {
-  printf("\nDeriv func = %le\n", this->funcPtr(state, deriv));
+  std::printf("\nDeriv func = %le\n", this->funcPtr(state, deriv));
 }
-void JitDeriv::DerivCodeGen() {
+void JitDeriv::DerivCodeGen(ClassicDeriv cd) {
   static llvm::LLVMContext myContext;
   static llvm::IRBuilder<> builder(myContext);
   static std::unique_ptr<llvm::Module> myModule;
@@ -70,6 +68,7 @@ void JitDeriv::DerivCodeGen() {
   // Types
   llvm::Type *dbl = llvm::Type::getDoubleTy(myContext);
   llvm::Type *dblPtr = llvm::Type::getDoubleTy(myContext)->getPointerTo();
+  llvm::Type *vd = llvm::Type::getVoidTy(myContext);
 
   // Code generation //
 
@@ -86,7 +85,9 @@ void JitDeriv::DerivCodeGen() {
   llvm::Value *deriv = argIter++;
   deriv->setName("deriv");
 
-  // function body
+  // function body //
+
+  // set up array arguments
   llvm::BasicBlock *BB =
       llvm::BasicBlock::Create(myContext, "entry", derivFunction);
   builder.SetInsertPoint(BB);
@@ -98,12 +99,54 @@ void JitDeriv::DerivCodeGen() {
   builder.CreateStore(deriv, allocaDeriv);
   llvm::Value *statePtr = builder.CreateLoad(allocaState);
   llvm::Value *derivPtr = builder.CreateLoad(allocaDeriv);
-  llvm::Value *idxList[1] = {
-      llvm::ConstantInt::get(myContext, llvm::APInt(64, 0))};
-  llvm::Value *stateVal = builder.CreateGEP(statePtr, idxList, "stateElem0Ptr");
-  llvm::Value *derivVal = builder.CreateGEP(derivPtr, idxList, "derivElem0Ptr");
-  llvm::Value *rate = llvm::ConstantFP::get(myContext, llvm::APFloat(12.25));
-  builder.CreateStore(rate, derivVal);
+
+  // derivative calculation variables
+  llvm::Value *idxList[1]; // array index
+  llvm::Value *stateElem;  // state array element
+  llvm::Value *derivElem;  // derivative array element
+  llvm::Value *tmpVal;     // temporary value from array
+  llvm::Value *rate;       // working derivative
+
+  int derivCont[NUM_SPEC] = {
+      0}; // number of contributions to each species derivative
+
+  // calculate derivative contributions from each reaction
+  for (int i_rxn = 0; i_rxn < cd.numRxns; ++i_rxn) {
+    rate = llvm::ConstantFP::get(myContext, llvm::APFloat(cd.rateConst[i_rxn]));
+    for (int i_react = 0; i_react < cd.numReact[i_rxn]; ++i_react) {
+      idxList[0] = llvm::ConstantInt::get(
+          myContext, llvm::APInt(64, cd.reactId[i_rxn][i_react]));
+      stateElem = builder.CreateGEP(statePtr, idxList, "stateElemPtr");
+      tmpVal = builder.CreateLoad(stateElem, "stateElemVal");
+      rate = builder.CreateFMul(rate, tmpVal, "multRate");
+    }
+    for (int i_react = 0; i_react < cd.numReact[i_rxn]; ++i_react) {
+      int i_spec = cd.reactId[i_rxn][i_react];
+      idxList[0] = llvm::ConstantInt::get(myContext, llvm::APInt(64, i_spec));
+      derivElem = builder.CreateGEP(derivPtr, idxList, "derivElemPtr");
+      if (derivCont[i_spec] > 0) {
+        tmpVal = builder.CreateLoad(derivElem, "existingDerivVal");
+      } else {
+        tmpVal = llvm::ConstantFP::get(myContext, llvm::APFloat(0.0));
+      }
+      tmpVal = builder.CreateFSub(tmpVal, rate, "subRateReact");
+      builder.CreateStore(tmpVal, derivElem);
+      ++derivCont[i_spec];
+    }
+    for (int i_prod = 0; i_prod < cd.numProd[i_rxn]; ++i_prod) {
+      int i_spec = cd.prodId[i_rxn][i_prod];
+      idxList[0] = llvm::ConstantInt::get(myContext, llvm::APInt(64, i_spec));
+      derivElem = builder.CreateGEP(derivPtr, idxList, "derivElemPtr");
+      if (derivCont[i_spec] > 0) {
+        tmpVal = builder.CreateLoad(derivElem, "existingDerivVal");
+        tmpVal = builder.CreateFAdd(tmpVal, rate, "addRateProd");
+        builder.CreateStore(tmpVal, derivElem);
+      } else {
+        builder.CreateStore(rate, derivElem);
+      }
+      ++derivCont[i_spec];
+    }
+  }
   builder.CreateRet(rate);
 
   // Print llvm code

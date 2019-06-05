@@ -27,7 +27,7 @@ int main() {
   llvm::InitializeNativeTargetAsmParser();
 
   ClassicDeriv classicDeriv{};
-  JitDeriv jitDeriv{classicDeriv};
+  JitDeriv jitDeriv{};
   double *state;
   double *fClassic;
   double *fJit;
@@ -46,7 +46,7 @@ int main() {
   auto classicTime =
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
-  jitDeriv.DerivCodeGen();
+  jitDeriv.DerivCodeGen(classicDeriv);
 
   start = std::chrono::high_resolution_clock::now();
   jitDeriv.Solve(state, fJit);

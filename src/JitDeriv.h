@@ -24,9 +24,9 @@ class ClassicDeriv;
 
 class JitDeriv {
 public:
-  JitDeriv(ClassicDeriv classicDeriv);
+  JitDeriv();
   void Solve(double *state, double *deriv);
-  void DerivCodeGen();
+  void DerivCodeGen(ClassicDeriv cd);
 
 private:
   std::unique_ptr<llvm::orc::leJIT> myJIT;
