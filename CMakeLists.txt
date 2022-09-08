@@ -21,6 +21,7 @@ file(GLOB JIT_TEST_SRCS src/*.cpp)
 
 add_executable(jit_test ${JIT_TEST_SRCS})
 
+#llvm_config(jit_test support core orcjit native irreader)
 llvm_map_components_to_libnames(llvm_libs support core orcjit native irreader)
 
 target_link_libraries(jit_test ${llvm_libs})
