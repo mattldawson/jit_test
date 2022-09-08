@@ -12,4 +12,7 @@ RUN dnf -y update \
 COPY . /jit_test/
 
 RUN mkdir build \
-    && cd build
+    && cd build \
+    && cmake -D CMAKE_BUILD_TYPE=release \
+             /jit_test \
+    && make

@@ -1,0 +1,15 @@
+name: build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: build Docker image
+      run: docker build -t jit-test .
+    - name: run test in container
+      run: docker run -t jit-test bash -c 'cd build; ./jit_test'
