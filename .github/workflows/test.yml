@@ -12,4 +12,4 @@ jobs:
     - name: build Docker image
       run: docker build -t jit-test .
     - name: run test in container
-      run: docker run -t jit-test bash -c 'cd build; ./jit_test'
+      run: docker run -t jit-test bash -c 'cd build; make test'

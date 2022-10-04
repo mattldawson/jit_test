@@ -1,12 +1,6 @@
-cmake_minimum_required(VERSION 3.4.3)
-project(JIT_TEST)
-set (CMAKE_CXX_STANDARD 14)
-
 ################################################################################
 # JIT tests
 
-enable_testing( )
-
-add_subdirectory(test)
+add_subdirectory(derivative)
 
 ################################################################################
