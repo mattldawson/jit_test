@@ -16,7 +16,6 @@
 #define COM_JITDERIV_H
 
 #include "leJIT.h"
-#include "llvm/IR/Constants.h"
 
 namespace jit_test {
 

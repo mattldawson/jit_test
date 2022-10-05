@@ -18,7 +18,7 @@
 #include <iostream>
 #include <stdlib.h>
 
-#define NUM_REPEAT 1000
+#define NUM_REPEAT 100
 
 using namespace jit_test;
 

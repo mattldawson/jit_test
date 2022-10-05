@@ -70,7 +70,7 @@ void JitDeriv::DerivCodeGen(ClassicDeriv cd) {
   // Prototype
   std::vector<llvm::Type *> derivArgsV{dblPtr, dblPtr};
   llvm::FunctionType *derivFunctionType =
-      llvm::FunctionType::get(dbl, derivArgsV, false);
+      llvm::FunctionType::get(vd, derivArgsV, false);
   llvm::Function *derivFunction =
       llvm::Function::Create(derivFunctionType, llvm::Function::ExternalLinkage,
                              "derivFunc", myModule.get());
@@ -142,7 +142,7 @@ void JitDeriv::DerivCodeGen(ClassicDeriv cd) {
       ++derivCont[i_spec];
     }
   }
-  builder->CreateRet(rate);
+  builder->CreateRetVoid();
 
   // Print llvm code
 #if 0
