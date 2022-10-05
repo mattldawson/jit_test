@@ -59,14 +59,14 @@ int main() {
   auto jitTime =
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
-#if 0
   for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec) {
+#if 0
     std::cout << std::endl
               << "fClassic[" << i_spec << "] = " << fClassic[i_spec]
               << "  fJit[" << i_spec << "] = " << fJit[i_spec];
+#endif
     assert(fClassic[i_spec] == fJit[i_spec]);
   }
-#endif
 
   std::cout << std::endl
             << std::endl
