@@ -21,9 +21,7 @@
 extern "C" {
 #endif
 
-typedef void (*MatMulFunc)(int*, int*, int*);
-
-MatMulFunc jited_func;
+std::unique_ptr<llvm::orc::leJIT> myJIT;
 
 static llvm::AllocaInst *CreateEntryBlockAlloca(llvm::Function *TheFunction,
                                                 llvm::Type *type,
@@ -33,47 +31,19 @@ static llvm::AllocaInst *CreateEntryBlockAlloca(llvm::Function *TheFunction,
   return TmpB.CreateAlloca(type, 0, VarName.c_str());
 }
 
-void test_jited_mat_mul() {
-
-    int rowA=2, colA=3, rowB=3, colB=2;
-    int a[rowA][colA],b[rowB][colB],c[rowA][colB];
-    int i,j;
-
-    if(colA != rowB){
-      printf("unmatched A_mat's column and B_mat's row\n");
-      return;
-    }
-
-    printf("jit initialization...\n");
-    for(i=0;i<rowA;i++)
-       for(j=0;j<colA;j++)
-          a[i][j]=i*colA+j;
-
-    for(i=0;i<rowB;i++)
-       for(j=0;j<colB;j++)
-          b[i][j]=i+j;
-
-  (*jited_func)((int*)a, (int*)b, (int*)c);
-
-  //for printing result
-    for(i=0;i<rowA;i++){
-       for(j=0;j<colB;j++)
-          printf("%d\t",c[i][j]);
-       printf("\n");
-    }
-}
-
-void create_mat_mul_function(const int rowA, const int colA, const int colB) {
+MatMulFunc create_mat_mul_function(const int rowA, const int colA, const int colB) {
 
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
 
   static llvm::ExitOnError ExitOnErr;
-  std::unique_ptr<llvm::orc::leJIT> myJIT = ExitOnErr(llvm::orc::leJIT::Create());
   static std::unique_ptr<llvm::LLVMContext> myContext;
   static std::unique_ptr<llvm::IRBuilder<>> builder;
   static std::unique_ptr<llvm::Module> myModule;
+
+  // create the JIT
+  myJIT = ExitOnErr(llvm::orc::leJIT::Create());
 
   // open a new context and module
   myContext = std::make_unique<llvm::LLVMContext>();
@@ -177,10 +147,7 @@ void create_mat_mul_function(const int rowA, const int colA, const int colB) {
   auto exprSymbol = ExitOnErr(myJIT->lookup("matMulFunc"));
 
   // return a pointer to the generated function
-  jited_func = (MatMulFunc) exprSymbol.getAddress();
-
-  // run the test of the jited function
-  test_jited_mat_mul();
+  return (MatMulFunc) exprSymbol.getAddress();
 
 }
 

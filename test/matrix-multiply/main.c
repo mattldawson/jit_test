@@ -33,15 +33,17 @@ int main(){
        printf("\n");
     }
 
+// reset C values
     for(i=0;i<rowA;++i)
       for(j=0;j<colB;++j)
         c[i][j] = 99999;
 
-    create_mat_mul_function(rowA, colA, colB);
+    MatMulFunc jit_mat_mul = create_mat_mul_function(rowA, colA, colB);
 
-//    jit_mat_mul((int*)a, (int*)b, (int*)c);
+    (*jit_mat_mul)((int*)a, (int*)b, (int*)c);
 
-//for printing result
+//for printing JIT result
+    printf("JITed function results:\n");
     for(i=0;i<rowA;i++){
        for(j=0;j<colB;j++)
           printf("%d\t",c[i][j]);

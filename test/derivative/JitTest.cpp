@@ -18,7 +18,7 @@
 #include <iostream>
 #include <stdlib.h>
 
-#define NUM_REPEAT 100
+#define NUM_REPEAT 10000
 
 using namespace jit_test;
 
@@ -59,12 +59,14 @@ int main() {
   auto jitTime =
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
+#if 0
   for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec) {
     std::cout << std::endl
               << "fClassic[" << i_spec << "] = " << fClassic[i_spec]
               << "  fJit[" << i_spec << "] = " << fJit[i_spec];
     assert(fClassic[i_spec] == fJit[i_spec]);
   }
+#endif
 
   std::cout << std::endl
             << std::endl

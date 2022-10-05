@@ -17,3 +17,11 @@ docker run -it jit-test bash
 cd build
 make test
 ```
+
+To run the tests manually in the container:
+
+```
+cd /build
+./test/derivative/derivative_test
+./test/matrix-multiply/matrix_multiply_test
+```
