@@ -1,0 +1,29 @@
+FROM fedora:36
+
+RUN dnf -y update \
+    && dnf -y install \
+         gcc \
+         gcc-c++ \
+         git \
+         cmake \
+         ninja-build \
+         xz \
+    && dnf clean all
+
+COPY . /jit_test/
+
+RUN curl -LO https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.6/llvm-project-15.0.6.src.tar.xz \
+    && xz -d -v llvm-project-15.0.6.src.tar.xz \
+    && tar -xf llvm-project-15.0.6.src.tar
+
+RUN mkdir build \
+    && cd build \
+    && cmake -G Ninja \
+         -D CMAKE_BUILD_TYPE=Release \
+         -D LLVM_BUILD_TOOLS:BOOL=FALSE \
+         -D LLVM_EXTERNAL_PROJECTS=jit_test \
+         -D LLVM_EXTERNAL_JIT_TEST_SOURCE_DIR=../jit_test \
+         -D CMAKE_INSTALL_PREFIX=../llvm-15 \
+         ../llvm-project-15.0.6.src/llvm \
+    && ninja \
+    && ninja install
