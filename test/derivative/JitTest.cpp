@@ -41,6 +41,8 @@ int main() {
   for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec)
     state[i_spec] = (rand() % 100) / 100.0;
 
+  classicDeriv.WritePreprocessedFortran(state, fClassic);
+
   auto start = std::chrono::high_resolution_clock::now();
   for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
     classicDeriv.Solve(state, fClassic);
@@ -59,14 +61,14 @@ int main() {
   auto jitTime =
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
-#if 0
   for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec) {
+#if 0
     std::cout << std::endl
               << "fClassic[" << i_spec << "] = " << fClassic[i_spec]
               << "  fJit[" << i_spec << "] = " << fJit[i_spec];
+#endif
     assert(fClassic[i_spec] == fJit[i_spec]);
   }
-#endif
 
   std::cout << std::endl
             << std::endl
