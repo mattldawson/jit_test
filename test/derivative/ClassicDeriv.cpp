@@ -44,16 +44,17 @@ void ClassicDeriv::Solve(const double *const state, double *const deriv) {
   }
 }
 
-void ClassicDeriv::WritePreprocessedFortran(const double *const state, double *const deriv) {
+void ClassicDeriv::WritePreprocessedFortran() {
 
-  std::string module = 
-    "module preprocess_test \n"
-    "\n"
-    "  implicit none \n"
-    "  private \n"
-    "  public :: run \n"
-    "\n"
-    "contains\n";
+  std::string module = "";
+  // std::string module = 
+  //   "module preprocess_test \n"
+  //   "\n"
+  //   "  implicit none \n"
+  //   "  private \n"
+  //   "  public :: run \n"
+  //   "\n"
+  //   "contains\n";
 
   module += ""
     "\n"
@@ -101,11 +102,10 @@ void ClassicDeriv::WritePreprocessedFortran(const double *const state, double *c
   "        deriv( prodId(rxnIdx,reactIdx) ) = deriv( reactId(rxnIdx,reactIdx) ) + rate \n"
   "      end do \n"
   "    end do \n"
-  "\n";
+  "  end subroutine run\n";
   
-  module += 
-    "  end subroutine run\n"
-    "end module preprocess_test\n";
+  // module += 
+    // "end module preprocess_test\n";
   
   std::ofstream out("preprocessed.F90");
   out << module;

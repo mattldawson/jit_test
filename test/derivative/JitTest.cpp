@@ -22,6 +22,8 @@
 
 using namespace jit_test;
 
+// extern "C" void run(double* )
+
 int main() {
 
   llvm::InitializeNativeTarget();
@@ -40,8 +42,6 @@ int main() {
 
   for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec)
     state[i_spec] = (rand() % 100) / 100.0;
-
-  classicDeriv.WritePreprocessedFortran(state, fClassic);
 
   auto start = std::chrono::high_resolution_clock::now();
   for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)

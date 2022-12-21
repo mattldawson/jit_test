@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.4.3)
-project(JIT_TEST)
-set (CMAKE_CXX_STANDARD 14)
+project(JIT_TEST LANGUAGES CXX C Fortran)
+set (CMAKE_CXX_STANDARD 17)
+
+include(FortranCInterface)
+
+# if you are working with C++ and Fortran
+FortranCInterface_VERIFY(CXX)
 
 ################################################################################
 # LLVM flags
@@ -9,6 +14,11 @@ set(LLVM_CMD "llvm-config --cxxflags --ldflags --system-libs --libs support core
 execute_process(COMMAND bash "-c" ${LLVM_CMD}
                 OUTPUT_VARIABLE llvm_libs)
 separate_arguments(llvm_libs)
+
+################################################################################
+# Create preprocessed fortran
+
+
 
 ################################################################################
 # JIT tests
