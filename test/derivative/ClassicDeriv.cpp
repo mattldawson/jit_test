@@ -60,45 +60,27 @@ void ClassicDeriv::WritePreprocessedFortran() {
     "    real(dp), intent(inout) :: state(" + std::to_string(this->numSpec) + ") \n"
     "    real(dp), intent(inout) :: deriv(" + std::to_string(this->numSpec) + ") \n"
     "\n"
-    "    real(dp) :: rateConst(" + std::to_string(this->numRxns) + ") \n"
-    "    integer :: numReact(" + std::to_string(this->numRxns) + ") \n"
-    "    integer :: numProd(" + std::to_string(this->numRxns) + ") \n"
-    "    integer :: reactId(" + std::to_string(this->numRxns) + ",3) \n"
-    "    integer :: prodId(" + std::to_string(this->numRxns) + ",10) \n"
     "    real(dp) :: rate \n"
-    "    integer :: rxnIdx, reactIdx, prodIdx \n"
     "\n"
     "    deriv = 0 \n"
     "";
 
-  for (int i_rxn = 0; i_rxn < this->numRxns; ++i_rxn) {
-    module +=
-      "    rateConst(" + std::to_string(i_rxn+1) + ") = " + std::to_string(this->rateConst[i_rxn]) + "\n"
-      "    numReact(" + std::to_string(i_rxn+1) + ") = " + std::to_string(this->numReact[i_rxn]) + "\n"
-      "    numProd(" + std::to_string(i_rxn+1) + ") = " + std::to_string(this->numProd[i_rxn]) + "\n";
-    for (int i_react = 0; i_react < this->numReact[i_rxn]; ++i_react){
-      module += "    reactId(" + std::to_string(i_rxn+1) + ", " + std::to_string(i_react+1) + ") = " + std::to_string(this->reactId[i_rxn][i_react] + 1) + " \n";
-    }
-    for (int i_prod = 0; i_prod < this->numProd[i_rxn]; ++i_prod){
-      module += "    prodId(" + std::to_string(i_rxn+1) + ", " + std::to_string(i_prod+1) + ") = " + std::to_string(this->prodId[i_rxn][i_prod] + 1) + " \n";
-    }
-  }
 
   for (int i_rxn = 0; i_rxn < this->numRxns; ++i_rxn) {
-    module += "    rate = rateConst(" + std::to_string(i_rxn + 1) + ") \n";
+    module += "    rate = " + std::to_string(this->rateConst[i_rxn]) + "_dp \n";
     for (int i_react = 0; i_react < this->numReact[i_rxn]; ++i_react)
-      module += "    rate = rate * state( reactId(" + std::to_string(i_rxn + 1) + "," + std::to_string(i_react + 1) + " )) \n";
+      module += "    rate = rate * state( " + std::to_string(this->reactId[i_rxn][i_react] + 1) + " ) \n";
     for (int i_react = 0; i_react < this->numReact[i_rxn]; ++i_react)
     {
       module += 
-      "    deriv( reactId(" + std::to_string(i_rxn + 1) + "," + std::to_string(i_react + 1) + ")) = "
-          "deriv( reactId(" + std::to_string(i_rxn + 1) + "," + std::to_string(i_react + 1) + ")) - rate \n";
+      "    deriv( " + std::to_string(this->reactId[i_rxn][i_react] + 1) + " ) = "
+          "deriv( " + std::to_string(this->reactId[i_rxn][i_react] + 1) + " ) - rate \n";
     }
     for (int i_prod = 0; i_prod < this->numProd[i_rxn]; ++i_prod)
     {
       module += 
-      "    deriv( prodId(" + std::to_string(i_rxn + 1) + "," + std::to_string(i_prod + 1) + ")) = "
-          "deriv( prodId(" + std::to_string(i_rxn + 1) + "," + std::to_string(i_prod + 1) + ")) + rate \n";
+      "    deriv( " + std::to_string(this->prodId[i_rxn][i_prod] + 1) + " ) = "
+          "deriv( " + std::to_string(this->prodId[i_rxn][i_prod] + 1) + " ) + rate \n";
     }
   }
 
