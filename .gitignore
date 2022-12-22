@@ -3,3 +3,4 @@ build/
 **/.Trashes
 CMakeCache.txt
 CMakeFiles/
+.vscode

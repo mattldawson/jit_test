@@ -1,12 +1,26 @@
 ################################################################################
 # Test of chemical forcing (derivative) function
 
-file(GLOB DERIV_TEST_SRCS *.cpp)
+add_subdirectory(Fortran)
 
-add_executable(derivative_test ${DERIV_TEST_SRCS})
+################################################################################
+# Make the C++ tests
+add_executable(derivative_test)
 
+add_dependencies(derivative_test generated-file)
+
+# needed to fine the fc_mangle.h file
 target_include_directories(derivative_test PRIVATE ${CMAKE_SOURCE_DIR}/include)
-target_link_libraries(derivative_test ${llvm_libs})
+
+target_sources(derivative_test 
+  PUBLIC 
+    ${CMAKE_CURRENT_BINARY_DIR}/Fortran/preprocessed.F90
+    ClassicDeriv.cpp
+    JitDeriv.cpp
+    JitTest.cpp 
+)
+
+target_link_libraries(derivative_test ${llvm_libs} )
 
 add_test(NAME derivative COMMAND derivative_test)
 

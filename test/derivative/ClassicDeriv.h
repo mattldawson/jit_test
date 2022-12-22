@@ -24,6 +24,8 @@ class ClassicDeriv {
 public:
   ClassicDeriv();
   void Solve(const double *const state, double *const deriv);
+  void WritePreprocessedFortran();
+
   int numRxns = NUM_RXNS;
   int numSpec = NUM_SPEC;
   double rateConst[NUM_RXNS];

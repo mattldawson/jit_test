@@ -17,10 +17,15 @@
 #include <chrono>
 #include <iostream>
 #include <stdlib.h>
+#include "FortranPreproccessed.h"
 
 #define NUM_REPEAT 10000
 
 using namespace jit_test;
+
+bool close_enough(const double& first, const double& second, const double tolerance = 0.001){
+  return abs(first - second) < tolerance;
+}
 
 int main() {
 
@@ -33,10 +38,12 @@ int main() {
   double *state;
   double *fClassic;
   double *fJit;
+  double *fPreprocessed;
 
   state = (double *)malloc(classicDeriv.numSpec * sizeof(double));
   fClassic = (double *)calloc(classicDeriv.numSpec, sizeof(double));
   fJit = (double *)calloc(classicDeriv.numSpec, sizeof(double));
+  fPreprocessed = (double *)calloc(classicDeriv.numSpec, sizeof(double));
 
   for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec)
     state[i_spec] = (rand() % 100) / 100.0;
@@ -59,21 +66,36 @@ int main() {
   auto jitTime =
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
+  start = std::chrono::high_resolution_clock::now();
+  for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
+    preprocessed_solve(state, fPreprocessed);
+  stop = std::chrono::high_resolution_clock::now();
+
+  auto preprocessedTime =
+      std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
   for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec) {
 #if 0
     std::cout << std::endl
               << "fClassic[" << i_spec << "] = " << fClassic[i_spec]
-              << "  fJit[" << i_spec << "] = " << fJit[i_spec];
+              << "  fJit[" << i_spec << "] = " << fJit[i_spec]
+              << "  fPreprocessed[" << i_spec << "] = " << fPreprocessed[i_spec]
+              << "  diff[" << i_spec << "] = " << (fPreprocessed[i_spec] - fClassic[i_spec]);
 #endif
     assert(fClassic[i_spec] == fJit[i_spec]);
+    assert(close_enough(fClassic[i_spec], fPreprocessed[i_spec]));
   }
 
   std::cout << std::endl
             << std::endl
             << "Classic: " << classicTime.count()
-            << "; JIT: " << jitTime.count() << std::endl
-            << "JIT speedup: "
-            << ((double)classicTime.count()) / (double)jitTime.count()
+            << "; JIT: " << jitTime.count() 
+            << "; Preprocessed: " << preprocessedTime.count() 
+            << std::endl
+            << "JIT speedup over classic: "
+            << ((double)classicTime.count()) / (double)jitTime.count() << std::endl
+            << "Preprocessed speedup over classic: "
+            << ((double)classicTime.count()) / (double)preprocessedTime.count()
             << std::endl;
 
   return 0;

@@ -4,6 +4,8 @@ RUN dnf -y update \
     && dnf -y install \
          clang-devel \
          gcc-c++ \
+         gdb \
+         gcc-fortran \
          make \
          llvm-devel \
          cmake \

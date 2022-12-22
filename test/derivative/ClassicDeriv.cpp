@@ -13,10 +13,14 @@
 
 #include "ClassicDeriv.h"
 #include <cstdlib>
+#include <string>
+#include <fstream>
+#include <iostream>
 
 namespace jit_test {
 
 ClassicDeriv::ClassicDeriv() {
+  srand(1856);
   for (int i_rxn = 0; i_rxn < this->numRxns; ++i_rxn) {
     this->rateConst[i_rxn] = (rand() % 10000 + 1) / 100.0;
     this->numReact[i_rxn] = rand() % 2 + 2;
@@ -40,4 +44,52 @@ void ClassicDeriv::Solve(const double *const state, double *const deriv) {
       deriv[this->prodId[i_rxn][i_prod]] += rate;
   }
 }
+
+void ClassicDeriv::WritePreprocessedFortran() {
+
+  std::string module =
+    "module mod\n"
+    "use iso_c_binding \n"
+    "use iso_c_binding, only: sp=>c_float, dp=>c_double \n"
+    "implicit none\n"
+    "private \n"
+    "public :: preprocessed_solve\n"
+    "contains\n"
+    "  subroutine preprocessed_solve(state, deriv) bind(c)\n"
+    "    use iso_c_binding \n"
+    "    real(dp), intent(in) :: state(" + std::to_string(this->numSpec) + ") \n"
+    "    real(dp), intent(inout) :: deriv(" + std::to_string(this->numSpec) + ") \n"
+    "\n"
+    "    real(dp) :: rate \n"
+    "\n"
+    "    deriv = 0 \n"
+    "";
+
+
+  for (int i_rxn = 0; i_rxn < this->numRxns; ++i_rxn) {
+    module += "    rate = " + std::to_string(this->rateConst[i_rxn]) + "_dp \n";
+    for (int i_react = 0; i_react < this->numReact[i_rxn]; ++i_react)
+      module += "    rate = rate * state( " + std::to_string(this->reactId[i_rxn][i_react] + 1) + " ) \n";
+    for (int i_react = 0; i_react < this->numReact[i_rxn]; ++i_react)
+    {
+      module += 
+      "    deriv( " + std::to_string(this->reactId[i_rxn][i_react] + 1) + " ) = "
+          "deriv( " + std::to_string(this->reactId[i_rxn][i_react] + 1) + " ) - rate \n";
+    }
+    for (int i_prod = 0; i_prod < this->numProd[i_rxn]; ++i_prod)
+    {
+      module += 
+      "    deriv( " + std::to_string(this->prodId[i_rxn][i_prod] + 1) + " ) = "
+          "deriv( " + std::to_string(this->prodId[i_rxn][i_prod] + 1) + " ) + rate \n";
+    }
+  }
+
+  module += 
+    "\n"
+    "  end subroutine preprocessed_solve\n"
+    "end module mod\n";
+  
+  std::cout << module << std::endl;
+}
+
 } // namespace jit_test
