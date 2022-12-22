@@ -6,7 +6,7 @@
 # https://github.com/ENCCS/cmake-workshop/blob/e47ac9b5197fc18db513e62ce3f1ac36357d3839/content/code/day-2/25_cxx-fortran/solution/src/math/CMakeLists.txt
 FortranCInterface_HEADER(
   fc_mangle.h
-  SYMBOLS run
+  SYMBOLS mod:preprocessed_solve
 )
 
 add_executable(generate_fortran GenerateFortran.cpp ../ClassicDeriv.cpp)
@@ -33,9 +33,3 @@ add_custom_target(
     generated-file
     DEPENDS preprocessed.F90
 )
-
-add_library(preprocessed_fortran)
-add_dependencies(preprocessed_fortran generated-file)
-
-target_sources(preprocessed_fortran PUBLIC preprocessed.F90)
-

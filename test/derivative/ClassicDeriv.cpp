@@ -47,23 +47,19 @@ void ClassicDeriv::Solve(const double *const state, double *const deriv) {
 
 void ClassicDeriv::WritePreprocessedFortran() {
 
-  std::string module = "";
-  // std::string module = 
-  //   "module preprocess_test \n"
-  //   "\n"
-  //   "  implicit none \n"
-  //   "  private \n"
-  //   "  public :: run \n"
-  //   "\n"
-  //   "contains\n";
-
-  module += ""
-    "\n"
-    "  subroutine run(state, deriv)\n"
-    "    use iso_c_binding, only: sp=>c_float, dp=>c_double \n"
+  std::string module =
+    "module mod\n"
+    "use iso_c_binding \n"
+    "use iso_c_binding, only: sp=>c_float, dp=>c_double \n"
+    "implicit none\n"
+    "private \n"
+    "public :: preprocessed_solve\n"
+    "contains\n"
+    "  subroutine preprocessed_solve(state, deriv) bind(c)\n"
+    "    use iso_c_binding \n"
     "    real(dp), intent(inout) :: state(" + std::to_string(this->numRxns) + ") \n"
     "    real(dp), intent(inout) :: deriv(" + std::to_string(this->numRxns) + ") \n"
-    "    \n"
+    "\n"
     "    real(dp) :: rateConst(" + std::to_string(this->numRxns) + ") \n"
     "    integer :: numReact(" + std::to_string(this->numRxns) + ") \n"
     "    integer :: numProd(" + std::to_string(this->numRxns) + ") \n"
@@ -72,10 +68,7 @@ void ClassicDeriv::WritePreprocessedFortran() {
     "    real(dp) :: rate \n"
     "    integer :: rxnIdx, reactIdx, prodIdx \n"
     "\n"
-    "    state = 0 \n"
     "    deriv = 0 \n"
-    "    write(*, *) \"here\"\n"
-    "    return \n"
     "";
 
   for (int i_rxn = 0; i_rxn < this->numRxns; ++i_rxn) {
@@ -102,18 +95,13 @@ void ClassicDeriv::WritePreprocessedFortran() {
   "        deriv( reactId(rxnIdx,reactIdx) ) = deriv( reactId(rxnIdx,reactIdx) ) - rate \n"
   "      end do \n"
   "      do prodIdx = 1, numProd(rxnIdx) \n"
-  "        deriv( prodId(rxnIdx,reactIdx) ) = deriv( reactId(rxnIdx,reactIdx) ) + rate \n"
+  "        deriv( prodId(rxnIdx,prodIdx) ) = deriv( prodId(rxnIdx,prodIdx) ) + rate \n"
   "      end do \n"
   "    end do \n"
-  "  end subroutine run\n";
-  
-  // module += 
-    // "end module preprocess_test\n";
+  "  end subroutine preprocessed_solve\n"
+  "end module mod\n";
   
   std::cout << module << std::endl;
-  // std::ofstream out("preprocessed.F90");
-  // out << module;
-  // out.close();
 }
 
 } // namespace jit_test

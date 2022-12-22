@@ -1,12 +1,10 @@
 #pragma once
 
-#include "fc_mangle.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern void run(double* state, double* deriv);
+extern void preprocessed_solve(double* state, double* deriv);
 
 #ifdef __cplusplus
 }
