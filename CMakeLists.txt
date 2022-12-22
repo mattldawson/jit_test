@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.21)
 project(JIT_TEST LANGUAGES CXX C Fortran)
 set (CMAKE_CXX_STANDARD 17)
 
+# connect fortran and c++
+# https://enccs.github.io/cmake-workshop/cxx-fortran/
+# https://github.com/ENCCS/cmake-workshop/blob/e47ac9b5197fc18db513e62ce3f1ac36357d3839/content/code/day-2/25_cxx-fortran/solution/src/math/CMakeLists.txt
 include(FortranCInterface)
 
 # if you are working with C++ and Fortran

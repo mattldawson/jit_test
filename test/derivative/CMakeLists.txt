@@ -14,6 +14,7 @@ add_executable(derivative_test
 add_dependencies(derivative_test generated-file)
 
 target_include_directories(derivative_test PRIVATE ${CMAKE_SOURCE_DIR}/include)
+# needed to fine the fc_mangle.h file
 target_include_directories(derivative_test PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/Fortran)
 target_link_libraries(derivative_test ${llvm_libs} )
 
