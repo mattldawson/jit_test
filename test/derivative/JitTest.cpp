@@ -23,6 +23,10 @@
 
 using namespace jit_test;
 
+bool close_enough(const double& first, const double& second, const double tolerance = 0.001){
+  return abs(first - second) < tolerance;
+}
+
 int main() {
 
   llvm::InitializeNativeTarget();
@@ -71,14 +75,15 @@ int main() {
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
   for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec) {
-#if 1
+#if 0
     std::cout << std::endl
               << "fClassic[" << i_spec << "] = " << fClassic[i_spec]
               << "  fJit[" << i_spec << "] = " << fJit[i_spec]
-              << "  fPreprocessed[" << i_spec << "] = " << fPreprocessed[i_spec];
+              << "  fPreprocessed[" << i_spec << "] = " << fPreprocessed[i_spec]
+              << "  diff[" << i_spec << "] = " << (fPreprocessed[i_spec] - fClassic[i_spec]);
 #endif
     assert(fClassic[i_spec] == fJit[i_spec]);
-    assert(fClassic[i_spec] == fPreprocessed[i_spec]);
+    assert(close_enough(fClassic[i_spec], fPreprocessed[i_spec]));
   }
 
   std::cout << std::endl
