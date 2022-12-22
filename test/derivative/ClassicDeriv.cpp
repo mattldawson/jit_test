@@ -57,7 +57,7 @@ void ClassicDeriv::WritePreprocessedFortran() {
     "contains\n"
     "  subroutine preprocessed_solve(state, deriv) bind(c)\n"
     "    use iso_c_binding \n"
-    "    real(dp), intent(inout) :: state(" + std::to_string(this->numSpec) + ") \n"
+    "    real(dp), intent(in) :: state(" + std::to_string(this->numSpec) + ") \n"
     "    real(dp), intent(inout) :: deriv(" + std::to_string(this->numSpec) + ") \n"
     "\n"
     "    real(dp) :: rate \n"
