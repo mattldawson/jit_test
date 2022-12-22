@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <string>
 #include <fstream>
+#include <iostream>
 
 namespace jit_test {
 
@@ -73,6 +74,8 @@ void ClassicDeriv::WritePreprocessedFortran() {
     "\n"
     "    state = 0 \n"
     "    deriv = 0 \n"
+    "    write(*, *) \"here\"\n"
+    "    return \n"
     "";
 
   for (int i_rxn = 0; i_rxn < this->numRxns; ++i_rxn) {
@@ -107,9 +110,10 @@ void ClassicDeriv::WritePreprocessedFortran() {
   // module += 
     // "end module preprocess_test\n";
   
-  std::ofstream out("preprocessed.F90");
-  out << module;
-  out.close();
+  std::cout << module << std::endl;
+  // std::ofstream out("preprocessed.F90");
+  // out << module;
+  // out.close();
 }
 
 } // namespace jit_test

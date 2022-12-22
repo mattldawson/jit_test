@@ -17,12 +17,12 @@
 #include <chrono>
 #include <iostream>
 #include <stdlib.h>
+#include "FortranPreproccessed.h"
 
 #define NUM_REPEAT 10000
 
 using namespace jit_test;
 
-// extern "C" void run(double* )
 
 int main() {
 
@@ -39,6 +39,8 @@ int main() {
   state = (double *)malloc(classicDeriv.numSpec * sizeof(double));
   fClassic = (double *)calloc(classicDeriv.numSpec, sizeof(double));
   fJit = (double *)calloc(classicDeriv.numSpec, sizeof(double));
+
+  run(state, fClassic);
 
   for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec)
     state[i_spec] = (rand() % 100) / 100.0;
