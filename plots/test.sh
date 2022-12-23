@@ -1,6 +1,4 @@
 
-# run from within the build directory
-
 # requries https://github.com/nico/ninjatracing
 # the results can be viewed in chrome https://crascit.com/2022/06/24/build-performance-insights/
 
