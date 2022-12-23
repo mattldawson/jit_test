@@ -19,7 +19,9 @@
 #include <stdlib.h>
 #include "FortranPreproccessed.h"
 
+#ifndef NUM_REPEAT
 #define NUM_REPEAT 10000
+#endif
 
 using namespace jit_test;
 
@@ -86,9 +88,7 @@ int main() {
     assert(close_enough(fClassic[i_spec], fPreprocessed[i_spec]));
   }
 
-  std::cout << std::endl
-            << std::endl
-            << "Classic: " << classicTime.count()
+  std::cout << "Classic: " << classicTime.count()
             << "; JIT: " << jitTime.count() 
             << "; Preprocessed: " << preprocessedTime.count() 
             << std::endl
