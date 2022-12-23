@@ -4,3 +4,4 @@ build/
 CMakeCache.txt
 CMakeFiles/
 .vscode
+plots/.ipynb_checkpoints
