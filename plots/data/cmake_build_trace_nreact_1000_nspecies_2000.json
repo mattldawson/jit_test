@@ -1,0 +1,152 @@
+[
+  {
+    "name": "test/derivative/derivative_test",
+    "cat": "targets",
+    "ph": "X",
+    "ts": 42181000,
+    "dur": 617000,
+    "pid": 0,
+    "tid": 0,
+    "args": {}
+  },
+  {
+    "name": "test/derivative/CMakeFiles/derivative_test.dir/Fortran/preprocessed.F90.o, test/derivative/mod.mod",
+    "cat": "targets",
+    "ph": "X",
+    "ts": 712000,
+    "dur": 41469000,
+    "pid": 0,
+    "tid": 0,
+    "args": {}
+  },
+  {
+    "name": "test/matrix-multiply/matrix_multiply_test",
+    "cat": "targets",
+    "ph": "X",
+    "ts": 2207000,
+    "dur": 637000,
+    "pid": 0,
+    "tid": 1,
+    "args": {}
+  },
+  {
+    "name": "test/derivative/CMakeFiles/derivative_test.dir/JitDeriv.cpp.o",
+    "cat": "targets",
+    "ph": "X",
+    "ts": 649000,
+    "dur": 2179000,
+    "pid": 0,
+    "tid": 2,
+    "args": {}
+  },
+  {
+    "name": "test/matrix-multiply/CMakeFiles/matrix_multiply_test.dir/jit_mat_mul.cpp.o",
+    "cat": "targets",
+    "ph": "X",
+    "ts": 4000,
+    "dur": 2202000,
+    "pid": 0,
+    "tid": 1,
+    "args": {}
+  },
+  {
+    "name": "test/derivative/CMakeFiles/derivative_test.dir/JitTest.cpp.o",
+    "cat": "targets",
+    "ph": "X",
+    "ts": 649000,
+    "dur": 1519000,
+    "pid": 0,
+    "tid": 3,
+    "args": {}
+  },
+  {
+    "name": "test/derivative/CMakeFiles/derivative_test.dir/ClassicDeriv.cpp.o",
+    "cat": "targets",
+    "ph": "X",
+    "ts": 649000,
+    "dur": 454000,
+    "pid": 0,
+    "tid": 4,
+    "args": {}
+  },
+  {
+    "name": "test/derivative/CMakeFiles/derivative_test.dir/Fortran.dd",
+    "cat": "targets",
+    "ph": "X",
+    "ts": 702000,
+    "dur": 10000,
+    "pid": 0,
+    "tid": 0,
+    "args": {}
+  },
+  {
+    "name": "test/derivative/CMakeFiles/derivative_test.dir/Fortran/preprocessed.F90-pp.f90, test/derivative/CMakeFiles/derivative_test.dir/Fortran/preprocessed.F90.o.ddi",
+    "cat": "targets",
+    "ph": "X",
+    "ts": 648000,
+    "dur": 54000,
+    "pid": 0,
+    "tid": 0,
+    "args": {}
+  },
+  {
+    "name": "test/derivative/Fortran/preprocessed.F90, test/derivative/Fortran/__header.h, /Users/kshores/Documents/jit_test/build/test/derivative/Fortran/preprocessed.F90, /Users/kshores/Documents/jit_test/build/test/derivative/Fortran/__header.h",
+    "cat": "targets",
+    "ph": "X",
+    "ts": 486000,
+    "dur": 162000,
+    "pid": 0,
+    "tid": 0,
+    "args": {}
+  },
+  {
+    "name": "test/derivative/Fortran/generate_fortran",
+    "cat": "targets",
+    "ph": "X",
+    "ts": 438000,
+    "dur": 48000,
+    "pid": 0,
+    "tid": 0,
+    "args": {}
+  },
+  {
+    "name": "test/derivative/Fortran/CMakeFiles/generate_fortran.dir/__/ClassicDeriv.cpp.o",
+    "cat": "targets",
+    "ph": "X",
+    "ts": 4000,
+    "dur": 434000,
+    "pid": 0,
+    "tid": 0,
+    "args": {}
+  },
+  {
+    "name": "test/matrix-multiply/CMakeFiles/matrix_multiply_test.dir/main.c.o",
+    "cat": "targets",
+    "ph": "X",
+    "ts": 4000,
+    "dur": 43000,
+    "pid": 0,
+    "tid": 2,
+    "args": {}
+  },
+  {
+    "name": "test/matrix-multiply/CMakeFiles/matrix_multiply_test.dir/mat_mul.c.o",
+    "cat": "targets",
+    "ph": "X",
+    "ts": 5000,
+    "dur": 29000,
+    "pid": 0,
+    "tid": 3,
+    "args": {}
+  },
+  {
+    "name": "test/derivative/Fortran/CMakeFiles/generate_fortran.dir/GenerateFortran.cpp.o",
+    "cat": "targets",
+    "ph": "X",
+    "ts": 4000,
+    "dur": 27000,
+    "pid": 0,
+    "tid": 4,
+    "args": {}
+  }
+]
