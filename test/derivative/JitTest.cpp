@@ -19,7 +19,9 @@
 #include <stdlib.h>
 #include "FortranPreproccessed.h"
 
+#ifndef NUM_REPEAT
 #define NUM_REPEAT 10000
+#endif
 
 using namespace jit_test;
 
@@ -56,7 +58,12 @@ int main() {
   auto classicTime =
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
+  start = std::chrono::high_resolution_clock::now();
   jitDeriv.DerivCodeGen(classicDeriv);
+  stop = std::chrono::high_resolution_clock::now();
+
+  auto jitCompileTime =
+      std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
   start = std::chrono::high_resolution_clock::now();
   for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
@@ -86,16 +93,15 @@ int main() {
     assert(close_enough(fClassic[i_spec], fPreprocessed[i_spec]));
   }
 
-  std::cout << std::endl
-            << std::endl
-            << "Classic: " << classicTime.count()
+  std::cout << "Classic: " << classicTime.count()
             << "; JIT: " << jitTime.count() 
             << "; Preprocessed: " << preprocessedTime.count() 
             << std::endl
             << "JIT speedup over classic: "
             << ((double)classicTime.count()) / (double)jitTime.count() << std::endl
             << "Preprocessed speedup over classic: "
-            << ((double)classicTime.count()) / (double)preprocessedTime.count()
+            << ((double)classicTime.count()) / (double)preprocessedTime.count() << std::endl
+            << "JIT compile time: " << jitCompileTime.count()
             << std::endl;
 
   return 0;

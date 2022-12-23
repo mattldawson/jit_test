@@ -14,6 +14,7 @@ add_custom_command(
   POST_BUILD
   OUTPUT
       ${CMAKE_CURRENT_BINARY_DIR}/preprocessed.F90
+      ${CMAKE_CURRENT_BINARY_DIR}/__header.h # fake, ensures that this command always runs so that the fortran file gets rewritten
   COMMAND
       generate_fortran > preprocessed.F90
   VERBATIM

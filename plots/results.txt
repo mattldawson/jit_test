@@ -1,0 +1,180 @@
+reactions: 10 ; species: 10
+Classic: 562; JIT: 95; Preprocessed: 62
+JIT speedup over classic: 5.91579
+Preprocessed speedup over classic: 9.06452
+JIT compile time: 8878
+reactions: 10 ; species: 100
+Classic: 611; JIT: 135; Preprocessed: 186
+JIT speedup over classic: 4.52593
+Preprocessed speedup over classic: 3.28495
+JIT compile time: 9875
+reactions: 10 ; species: 500
+Classic: 819; JIT: 133; Preprocessed: 566
+JIT speedup over classic: 6.15789
+Preprocessed speedup over classic: 1.447
+JIT compile time: 8736
+reactions: 10 ; species: 1000
+Classic: 1301; JIT: 129; Preprocessed: 991
+JIT speedup over classic: 10.0853
+Preprocessed speedup over classic: 1.31282
+JIT compile time: 8687
+reactions: 10 ; species: 1500
+Classic: 2130; JIT: 151; Preprocessed: 1779
+JIT speedup over classic: 14.106
+Preprocessed speedup over classic: 1.1973
+JIT compile time: 9246
+reactions: 10 ; species: 2000
+Classic: 2615; JIT: 137; Preprocessed: 2218
+JIT speedup over classic: 19.0876
+Preprocessed speedup over classic: 1.17899
+JIT compile time: 9165
+reactions: 100 ; species: 10
+Classic: 7567; JIT: 1082; Preprocessed: 980
+JIT speedup over classic: 6.99353
+Preprocessed speedup over classic: 7.72143
+JIT compile time: 238217
+reactions: 100 ; species: 100
+Classic: 5072; JIT: 1664; Preprocessed: 1932
+JIT speedup over classic: 3.04808
+Preprocessed speedup over classic: 2.62526
+JIT compile time: 301017
+reactions: 100 ; species: 500
+Classic: 6060; JIT: 1619; Preprocessed: 1741
+JIT speedup over classic: 3.74305
+Preprocessed speedup over classic: 3.48076
+JIT compile time: 264615
+reactions: 100 ; species: 1000
+Classic: 5814; JIT: 1572; Preprocessed: 2147
+JIT speedup over classic: 3.69847
+Preprocessed speedup over classic: 2.70796
+JIT compile time: 329954
+reactions: 100 ; species: 1500
+Classic: 6413; JIT: 1539; Preprocessed: 2509
+JIT speedup over classic: 4.16699
+Preprocessed speedup over classic: 2.556
+JIT compile time: 329588
+reactions: 100 ; species: 2000
+Classic: 6414; JIT: 1529; Preprocessed: 2975
+JIT speedup over classic: 4.1949
+Preprocessed speedup over classic: 2.15597
+JIT compile time: 332635
+reactions: 500 ; species: 10
+Classic: 55576; JIT: 5631; Preprocessed: 5864
+JIT speedup over classic: 9.86965
+Preprocessed speedup over classic: 9.47749
+JIT compile time: 3071772
+reactions: 500 ; species: 100
+Classic: 49378; JIT: 8765; Preprocessed: 12128
+JIT speedup over classic: 5.63354
+Preprocessed speedup over classic: 4.07141
+JIT compile time: 3118134
+reactions: 500 ; species: 500
+Classic: 31937; JIT: 9074; Preprocessed: 10371
+JIT speedup over classic: 3.51962
+Preprocessed speedup over classic: 3.07945
+JIT compile time: 1909015
+reactions: 500 ; species: 1000
+Classic: 35831; JIT: 8821; Preprocessed: 9352
+JIT speedup over classic: 4.06201
+Preprocessed speedup over classic: 3.83137
+JIT compile time: 1733254
+reactions: 500 ; species: 1500
+Classic: 42833; JIT: 8943; Preprocessed: 10002
+JIT speedup over classic: 4.78956
+Preprocessed speedup over classic: 4.28244
+JIT compile time: 1815334
+reactions: 500 ; species: 2000
+Classic: 49192; JIT: 8479; Preprocessed: 10304
+JIT speedup over classic: 5.80163
+Preprocessed speedup over classic: 4.77407
+JIT compile time: 1756847
+reactions: 1000 ; species: 10
+Classic: 101392; JIT: 11167; Preprocessed: 12300
+JIT speedup over classic: 9.07961
+Preprocessed speedup over classic: 8.24325
+JIT compile time: 8731489
+reactions: 1000 ; species: 100
+Classic: 66463; JIT: 17329; Preprocessed: 24714
+JIT speedup over classic: 3.83536
+Preprocessed speedup over classic: 2.68929
+JIT compile time: 9520919
+reactions: 1000 ; species: 500
+Classic: 69000; JIT: 18284; Preprocessed: 23476
+JIT speedup over classic: 3.77379
+Preprocessed speedup over classic: 2.93917
+JIT compile time: 4415065
+reactions: 1000 ; species: 1000
+Classic: 71434; JIT: 18198; Preprocessed: 20856
+JIT speedup over classic: 3.92538
+Preprocessed speedup over classic: 3.42511
+JIT compile time: 3865697
+reactions: 1000 ; species: 1500
+Classic: 80720; JIT: 17829; Preprocessed: 19879
+JIT speedup over classic: 4.52746
+Preprocessed speedup over classic: 4.06057
+JIT compile time: 3693396
+reactions: 1000 ; species: 2000
+Classic: 70411; JIT: 17543; Preprocessed: 19790
+JIT speedup over classic: 4.01362
+Preprocessed speedup over classic: 3.55791
+JIT compile time: 3680248
+reactions: 2500 ; species: 10
+Classic: 238068; JIT: 47692; Preprocessed: 59917
+JIT speedup over classic: 4.99178
+Preprocessed speedup over classic: 3.9733
+JIT compile time: 44955359
+reactions: 2500 ; species: 100
+Classic: 175886; JIT: 108524; Preprocessed: 148393
+JIT speedup over classic: 1.62071
+Preprocessed speedup over classic: 1.18527
+JIT compile time: 52644670
+reactions: 2500 ; species: 500
+Classic: 150256; JIT: 122621; Preprocessed: 162784
+JIT speedup over classic: 1.22537
+Preprocessed speedup over classic: 0.923039
+JIT compile time: 20343876
+reactions: 2500 ; species: 1000
+Classic: 232336; JIT: 120806; Preprocessed: 147364
+JIT speedup over classic: 1.92322
+Preprocessed speedup over classic: 1.57661
+JIT compile time: 15836338
+reactions: 2500 ; species: 1500
+Classic: 206051; JIT: 117838; Preprocessed: 133525
+JIT speedup over classic: 1.7486
+Preprocessed speedup over classic: 1.54316
+JIT compile time: 14645097
+reactions: 2500 ; species: 2000
+Classic: 180879; JIT: 118226; Preprocessed: 130297
+JIT speedup over classic: 1.52994
+Preprocessed speedup over classic: 1.38821
+JIT compile time: 13830658
+reactions: 5000 ; species: 10
+Classic: 530436; JIT: 147607; Preprocessed: 326893
+JIT speedup over classic: 3.59357
+Preprocessed speedup over classic: 1.62266
+JIT compile time: 168984057
+reactions: 5000 ; species: 100
+Classic: 425260; JIT: 213036; Preprocessed: 300256
+JIT speedup over classic: 1.99619
+Preprocessed speedup over classic: 1.41632
+JIT compile time: 210431134
+reactions: 5000 ; species: 500
+Classic: 448854; JIT: 234332; Preprocessed: 318286
+JIT speedup over classic: 1.91546
+Preprocessed speedup over classic: 1.41022
+JIT compile time: 74346525
+reactions: 5000 ; species: 1000
+Classic: 392510; JIT: 234487; Preprocessed: 307234
+JIT speedup over classic: 1.67391
+Preprocessed speedup over classic: 1.27756
+JIT compile time: 54207142
+reactions: 5000 ; species: 1500
+Classic: 444561; JIT: 238977; Preprocessed: 302387
+JIT speedup over classic: 1.86027
+Preprocessed speedup over classic: 1.47017
+JIT compile time: 48914139
+reactions: 5000 ; species: 2000
+Classic: 457829; JIT: 257674; Preprocessed: 393905
+JIT speedup over classic: 1.77678
+Preprocessed speedup over classic: 1.16228
+JIT compile time: 44595001

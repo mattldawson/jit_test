@@ -15,8 +15,12 @@
 #ifndef COM_CLASSICDERIV_H
 #define COM_CLASSICDERIV_H
 
+#ifndef NUM_RXNS
 #define NUM_RXNS 5000
+#endif
+#ifndef NUM_SPEC
 #define NUM_SPEC 2000
+#endif
 
 namespace jit_test {
 
