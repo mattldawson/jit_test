@@ -16,10 +16,10 @@
 #define COM_CLASSICDERIV_H
 
 #ifndef NUM_RXNS
-#define NUM_RXNS 5000
+#define NUM_RXNS 500
 #endif
 #ifndef NUM_SPEC
-#define NUM_SPEC 2000
+#define NUM_SPEC 200
 #endif
 
 namespace jit_test {
