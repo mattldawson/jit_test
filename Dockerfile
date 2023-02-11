@@ -9,6 +9,7 @@ RUN dnf -y update \
          make \
          llvm-devel \
          cmake \
+         valgrind \
     && dnf clean all
 
 COPY . /jit_test/

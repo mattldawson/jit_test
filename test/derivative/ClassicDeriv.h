@@ -21,18 +21,21 @@
 #ifndef NUM_SPEC
 #define NUM_SPEC 200
 #endif
+#ifndef NUM_CELLS
+#define NUM_CELLS 10
+#endif
 
 namespace jit_test {
 
 class ClassicDeriv {
 public:
   ClassicDeriv();
-  void Solve(const double *const state, double *const deriv);
+  void Solve(const double *const rateConst, const double *const state, double *const deriv);
   void WritePreprocessedFortran();
 
   int numRxns = NUM_RXNS;
   int numSpec = NUM_SPEC;
-  double rateConst[NUM_RXNS];
+  int numCell = NUM_CELLS;
   int numReact[NUM_RXNS];
   int numProd[NUM_RXNS];
   int reactId[NUM_RXNS][3];

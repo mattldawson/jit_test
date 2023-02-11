@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-extern void preprocessed_solve(double* state, double* deriv);
+extern void preprocessed_solve(double* rateConst, double* state, double* deriv);
 
 #ifdef __cplusplus
 }
