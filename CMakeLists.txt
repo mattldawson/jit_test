@@ -36,8 +36,9 @@ separate_arguments(llvm_libs)
 
 enable_testing( )
 
-set(NREACTIONS "5000" CACHE STRING "Number of reactions to simulate")
-set(NSPECIES "2000" CACHE STRING "Number of species to simulate")
+set(NCELLS "100" CACHE STRING "Number of model grid cells")
+set(NREACTIONS "500" CACHE STRING "Number of reactions to simulate")
+set(NSPECIES "200" CACHE STRING "Number of species to simulate")
 set(NITERATIONS "10000" CACHE STRING "Number of iterations to run the simulate")
 
 add_compile_definitions(NUM_RXNS=${NREACTIONS} NUM_SPEC=${NSPECIES} NUM_REPEAT=${NITERATIONS})
