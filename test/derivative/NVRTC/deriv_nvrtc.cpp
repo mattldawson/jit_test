@@ -28,11 +28,11 @@
 
 // define CUDA thread and block size
 // make sure that NUM_THREADS * NUM_BLOCKS > NUM_CELL
-#define NUM_THREADS     128
+#define NUM_THREADS     157
 #define NUM_BLOCKS      32
 
 // define constants for chemical forcing terms
-#define NUM_CELL        4000
+#define NUM_CELL        5000
 #define NUM_RXN         500
 #define NUM_SPEC        200
 #define MAX_REACT       3      // maximum number of reactants per reaction
@@ -42,28 +42,32 @@
 #define TOLERANCE       1.e-6
 
 // function pointer to a CUDA kernel
-const char *solveStr = "                                            \n\
-extern \"C\" __global__                                             \n\
-void solve(double *rateConst, double *state, double *deriv,         \n\
-           int *numReact, int *numProd, int *reactId, int *prodId)  \n\
-{                                                                   \n\
-  size_t tid = blockIdx.x * blockDim.x + threadIdx.x;               \n\
-  int i_spec, i_rxn, i_react, i_prod;                               \n\
-  double rate;                                                      \n\
-  if (tid < NUM_CELLS) {                                            \n\
-     for (i_spec = 0; i_spec < NUM_SPEC; ++i_spec)                  \n\
-         deriv[tid*NUM_SPEC+i_spec] = 0.0;                          \n\
-     for (i_rxn = 0; i_rxn < NUM_RXN; ++i_rxn) {                    \n\
-         rate = rateConst[tid*NUM_RXN+i_rxn];                       \n\
-         for (i_react = 0; i_react < numReact[i_rxn]; ++i_react)    \n\
-             rate *= state[tid*NUM_SPEC+reactId[i_rxn][i_react]];   \n\
-         for (i_react = 0; i_react < numReact[i_rxn]; ++i_react)    \n\
-             deriv[tid*NUM_SPEC+reactId[i_rxn][i_react]] -= rate;   \n\
-         for (i_prod = 0; i_prod < numProd[i_rxn]; ++i_prod)        \n\
-             deriv[tid*NUM_SPEC+prodId[i_rxn][i_prod]] += rate;     \n\
-     }                                                              \n\
-  }                                                                 \n\
-}                                                                   \n";
+const char *solveStr = "                                                    \n\
+extern \"C\" __global__                                                     \n\
+void solve(double *rateConst, double *state, double *deriv,                 \n\
+           int *numReact, int *numProd, int *reactId, int *prodId,          \n\
+           int numcell, int numrxn, int numspec, int maxreact, int maxprod) \n\
+                                                                            \n\
+{                                                                           \n\
+  size_t tid;                                                               \n\
+  int i_spec, i_rxn, i_react, i_prod;                                       \n\
+  double rate;                                                              \n\
+                                                                            \n\
+  tid = blockIdx.x * blockDim.x + threadIdx.x;                              \n\
+  if (tid < numcell) {                                                      \n\
+     for (i_spec = 0; i_spec < numspec; ++i_spec)                           \n\
+         deriv[tid*numspec+i_spec] = 0.0;                                   \n\
+     for (i_rxn = 0; i_rxn < numrxn; ++i_rxn) {                             \n\
+         rate = rateConst[tid*numrxn+i_rxn];                                \n\
+         for (i_react = 0; i_react < numReact[i_rxn]; ++i_react)            \n\
+             rate *= state[tid*numspec+reactId[i_rxn*maxreact+i_react]];    \n\
+         for (i_react = 0; i_react < numReact[i_rxn]; ++i_react)            \n\
+             deriv[tid*numspec+reactId[i_rxn*maxreact+i_react]] -= rate;    \n\
+         for (i_prod = 0; i_prod < numProd[i_rxn]; ++i_prod)                \n\
+             deriv[tid*numspec+prodId[i_rxn*maxprod+i_prod]] += rate;       \n\
+     }                                                                      \n\
+  }                                                                         \n\
+}                                                                           \n";
 
 int main(int argc, char **argv)
 {
@@ -80,10 +84,10 @@ int main(int argc, char **argv)
         NULL,                               // headers
         NULL));                             // includeNames
 
-    // Compile the program for compute_75 (V100) or compute_85 (A100) with fmad disabled.
+    // Compile the program for compute_70 (V100) or compute_80 (A100) with fmad disabled.
     const char *opts[] =
     {
-        "--gpu-architecture=compute_75",
+        "--gpu-architecture=compute_70",
         "--fmad=false"
     };
     nvrtcResult compileResult = nvrtcCompileProgram(prog,  // prog
@@ -130,6 +134,14 @@ int main(int argc, char **argv)
     int hreactId[NUM_RXN][MAX_REACT];
     int hprodId[NUM_RXN][MAX_PROD];
     int i_cell, i_rxn, i_react, i_prod, i_spec;
+
+    // Save predefined variable for CUDA kernel
+    int numcell, numrxn, numspec, maxreact, maxprod;
+    numcell  = NUM_CELL;
+    numrxn   = NUM_RXN;
+    numspec  = NUM_SPEC;
+    maxreact = MAX_REACT;
+    maxprod  = MAX_PROD;
 
     double *hrateConst;
     double *hstate;
@@ -201,7 +213,10 @@ int main(int argc, char **argv)
     std::cout << "Each grid cell contains " << NUM_SPEC << " species and " << NUM_RXN << " reactions ..." << std::endl;
 
     void *args[] = { &drateConst, &dstate, &dderiv, &dnumReact, 
-                     &dnumProd, &dreactId, &dprodId };
+                     &dnumProd, &dreactId, &dprodId,
+                     &numcell, &numrxn, &numspec, &maxreact, &maxprod 
+                   };
+
     CUDA_SAFE_CALL(
         cuLaunchKernel(cuKernel,
         NUM_BLOCKS, 1, 1,    // grid dim
