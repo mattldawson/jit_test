@@ -38,6 +38,7 @@ void CudaJitDeriv::SolveUnrolled(double *rateConst, double *state, double *deriv
   CUDA_SAFE_CALL( cuMemcpyHtoD(dstate, state, NUM_SPEC * NUM_CELL * sizeof(double)) );
   CUDA_SAFE_CALL( cuMemcpyHtoD(dnumcell, numcell, 1 * sizeof(int)) );
 
+  // Call the function
   void *args[] = { &drateConst, &dstate, &dderiv, &dnumcell };
 
   unrolledKernelJit.Run(args);
