@@ -22,6 +22,31 @@ CudaJitDeriv::CudaJitDeriv(ClassicDeriv cd)
 };
 
 void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv, int numcell) {
+  CUdeviceptr drateConst, dstate, dderiv, dnumcell;
+
+  // Allocate GPU memory
+  CUDA_SAFE_CALL( cuMemAlloc(&drateConst, NUM_RXN * NUM_CELL * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemAlloc(&dstate, NUM_SPEC * NUM_CELL * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemAlloc(&dderiv, NUM_SPEC * NUM_CELL * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemAlloc(&dnumcell, 1 * sizeof(int)) );
+
+  // copy to GPU
+  CUDA_SAFE_CALL( cuMemcpyHtoD(drateConst, rateConst, NUM_RXN * NUM_CELL * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemcpyHtoD(dstate, state, NUM_SPEC * NUM_CELL * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemcpyHtoD(dnumcell, numcell, 1 * sizeof(int)) );
+  
+  // Call the function
+  void *args[] = { &drateConst, &dstate, &dderiv, &dnumcell };
+  
+  KernelJit.Run(args);
+  
+  // Get the result
+  CUDA_SAFE_CALL( cuMemcpyDtoH(deriv, dderiv, NUM_SPEC * NUM_CELL * sizeof(double)) );
+  
+  CUDA_SAFE_CALL( cuMemFree(drateConst) );
+  CUDA_SAFE_CALL( cuMemFree(dstate) );
+  CUDA_SAFE_CALL( cuMemFree(dderiv) );
+  CUDA_SAFE_CALL( cuMemFree(dnumcell) ); 
 }
 
 void CudaJitDeriv::SolveUnrolled(double *rateConst, double *state, double *deriv, int numcell) {
@@ -53,7 +78,31 @@ void CudaJitDeriv::SolveUnrolled(double *rateConst, double *state, double *deriv
 }
 
 std::string GenerateCudaKernal(ClassicDeriv cd) {
-  return std::string();
+  std::string kernel = "\n\
+extern \"C\" __global__                                                      \n\
+void solve(double *rateConst, double *state, double *deriv, int numcell)     \n\
+                                                                             \n\
+{                                                                            \n\
+  size_t tid;                                                                \n\
+  int i_spec, i_rxn, i_react, i_prod;                                        \n\
+  double rate;                                                               \n\
+                                                                             \n\
+  tid = blockIdx.x * blockDim.x + threadIdx.x;                               \n\
+  if (tid < numcell) {                                                       \n\
+     for (i_spec = 0; i_spec < " + std::to_string(cd.numSpec) + "; ++i_spec) \n\
+         deriv[tid*" + std::to_string(cd.numSpec) + "+i_spec] = 0.0;         \n\
+     for (i_rxn = 0; i_rxn < " + std::to_string(cd.numRxns) + "; ++i_rxn) {  \n\
+         rate = rateConst[tid*" + std::to_string(cd.numRxns) + "+i_rxn];     \n\
+         for (i_react = 0; i_react < " + cd.numReact[i_rxn] + "; ++i_react)  \n\
+             rate *= state[tid*" + std::to_string(cd.numSpec) + "+" + std::to_string(cd.reactId[i_rxn][i_react]) + "]; \n\
+         for (i_react = 0; i_react < " + cd.numReact[i_rxn] + "; ++i_react)  \n\
+             deriv[tid*" + std::to_string(cd.numSpec) + "+" + std::to_string(cd.reactId[i_rxn][i_react]) + "] -= rate; \n\
+         for (i_prod = 0; i_prod < " + cd.numProd[i_rxn] + "; ++i_prod)      \n\
+             deriv[tid*" + std::to_string(cd.numSpec) + "+" + std::to_string(cd.prodId[i_rxn][i_prod]) + "] += rate;   \n\ 
+     }                                                                       \n\
+  }                                                                          \n\
+}                                                                            \n";
+  return kernel;
 }
 
 std::string GenerateUnrolledCudaKernal(ClassicDeriv cd) {

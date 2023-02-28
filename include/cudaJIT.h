@@ -58,10 +58,10 @@ public:
         NULL,                               // headers
         NULL));                             // include name
 
-    // Compile the program for compute_35 with fmad disabled
+    // Compile the program for compute_70 (V100) or compute_80 (A100) with fmad disabled.
     const char *opts[] =
     {
-      "--gpu-architecture=compute_35",
+      "--gpu-architecture=compute_70",
       "--fmad=false"
     };
     nvrtcResult compileResult = nvrtcCompileProgram(this->prog,  // prog
