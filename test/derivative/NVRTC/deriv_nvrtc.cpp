@@ -28,8 +28,8 @@
 
 // define CUDA thread and block size
 // make sure that NUM_THREADS * NUM_BLOCKS > NUM_CELL
-#define NUM_THREADS     157
-#define NUM_BLOCKS      32
+#define NUM_THREADS     32
+#define NUM_BLOCKS      157
 
 // define constants for chemical forcing terms
 #define NUM_CELL        5000
