@@ -4,9 +4,26 @@
 
 namespace jit_test {
 
-void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv) {}
+std::string GenerateCudaKernal(ClassicDeriv cd);
+std::string GenerateUnrolledCudaKernal(ClassicDeriv cd);
 
-std::string CudaJitDeriv::GenerateCudaKernal(ClassicDeriv cd) {
+CudaJitDeriv::CudaJitDeriv(ClassicDeriv cd) 
+  : rolledUpJit(GenerateCudaKernal(cd))
+  , unrolledJit(GenerateUnrolledCudaKernal(cd))
+{
+};
+
+void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv) {
+}
+
+void CudaJitDeriv::SolveUnrolled(double *rateConst, double *state, double *deriv) {
+}
+
+std::string GenerateCudaKernal(ClassicDeriv cd) {
+  return std::string();
+}
+
+std::string GenerateUnrolledCudaKernal(ClassicDeriv cd) {
 
   std::string kernel = "\n\
 extern \"C\" __global__                                                     \n\

@@ -38,7 +38,7 @@ int main() {
 
   ClassicDeriv classicDeriv{};
   JitDeriv jitDeriv{};
-  CudaJitDeriv cudaJitDeriv{};
+  CudaJitDeriv cudaJitDeriv(classicDeriv);
   double *rateConst;
   double *state;
   double *fClassic;
