@@ -4,6 +4,8 @@
 
 namespace jit_test {
 
+void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv) {}
+
 std::string CudaJitDeriv::GenerateCudaKernal(ClassicDeriv cd) {
 
   std::string kernel = "\n\
