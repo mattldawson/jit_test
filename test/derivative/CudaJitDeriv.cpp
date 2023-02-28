@@ -21,10 +21,34 @@ CudaJitDeriv::CudaJitDeriv(ClassicDeriv cd)
   unrolledKernelJitTime = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 };
 
-void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv) {
+void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv, int numcell) {
 }
 
-void CudaJitDeriv::SolveUnrolled(double *rateConst, double *state, double *deriv) {
+void CudaJitDeriv::SolveUnrolled(double *rateConst, double *state, double *deriv, int numcell) {
+  CUdeviceptr drateConst, dstate, dderiv, dnumcell;
+
+  // Allocate GPU memory
+  CUDA_SAFE_CALL( cuMemAlloc(&drateConst, NUM_RXN * NUM_CELL * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemAlloc(&dstate, NUM_SPEC * NUM_CELL * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemAlloc(&dderiv, NUM_SPEC * NUM_CELL * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemAlloc(&dnumcell, 1 * sizeof(int)) );
+
+  // copy to GPU
+  CUDA_SAFE_CALL( cuMemcpyHtoD(drateConst, rateConst, NUM_RXN * NUM_CELL * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemcpyHtoD(dstate, state, NUM_SPEC * NUM_CELL * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemcpyHtoD(dnumcell, numcell, 1 * sizeof(int)) );
+
+  void *args[] = { &drateConst, &dstate, &dderiv, &dnumcell };
+
+  unrolledKernelJit.Run(args);
+
+  // Get the result
+  CUDA_SAFE_CALL( cuMemcpyDtoH(deriv, dderiv, NUM_SPEC * NUM_CELL * sizeof(double)) );
+
+  CUDA_SAFE_CALL( cuMemFree(drateConst) );
+  CUDA_SAFE_CALL( cuMemFree(dstate) );
+  CUDA_SAFE_CALL( cuMemFree(dderiv) );
+  CUDA_SAFE_CALL( cuMemFree(dnumcell) );
 }
 
 std::string GenerateCudaKernal(ClassicDeriv cd) {
