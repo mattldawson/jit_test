@@ -16,6 +16,7 @@ target_sources(derivative_test
   PUBLIC 
     ${CMAKE_CURRENT_BINARY_DIR}/Fortran/preprocessed.F90
     ClassicDeriv.cpp
+    CudaJitDeriv.cpp
     JitDeriv.cpp
     JitTest.cpp 
 )
