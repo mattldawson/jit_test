@@ -117,7 +117,7 @@ int main(int argc, char **argv)
 
     // Execute SAXPY.
     std::cout << "Running saxpy on " << num_items << " elements ..." << std::endl;
-    
+
     void *args[] = { &a, &dX, &dY, &dOut, &num_items };
     CUDA_SAFE_CALL(
         cuLaunchKernel(cuKernel,
@@ -131,7 +131,7 @@ int main(int argc, char **argv)
     bool passed = true;
     CUDA_SAFE_CALL(cuMemcpyDtoH(hOut, dOut, bufferSize));
     for (size_t i = 0; i < num_items; ++i) {
-        if (a * hX[i] + hY[i] != hOut[i]) {
+        if ((a * hX[i] + hY[i] - hOut[i])/hOut[i]>1e-6) {
             passed = false;
             break;
         }

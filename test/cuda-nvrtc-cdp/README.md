@@ -1,5 +1,12 @@
 # CUDA NVRTC & CDP samples
 
+# To build and run on CASPER
+module load nvhpc/22.2
+module load cuda/11.4.0
+module load cmake/3.22.0
+nvc++ -o saxpy -lnvrtc -lcuda saxpy.cpp
+qsub -I -l select=1:ncpus=1:mpiprocs=1:ngpus=1 -l walltime=00:10:00 -l gpu_type=v100 -q casper -A project_id
+
 ## Feature list:
  * CUDA Driver API
  * CUDA Runtime Compilation
