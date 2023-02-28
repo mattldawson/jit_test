@@ -8,7 +8,6 @@ class ClassicDeriv;
 
 class CudaJitDeriv {
 public:
-  CudaJitDeriv();
   void Solve(double *rateConst, double *state, double *deriv);
   std::string GenerateCudaKernal(ClassicDeriv cd);
 
