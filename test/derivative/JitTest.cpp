@@ -13,6 +13,7 @@
 
 #include "ClassicDeriv.h"
 #include "JitDeriv.h"
+#include "CudaJitDeriv.h"
 #include <assert.h>
 #include <chrono>
 #include <iostream>
@@ -37,6 +38,7 @@ int main() {
 
   ClassicDeriv classicDeriv{};
   JitDeriv jitDeriv{};
+  CudaJitDeriv cudaJitDeriv{};
   double *rateConst;
   double *state;
   double *fClassic;
