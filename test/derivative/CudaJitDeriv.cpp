@@ -1,4 +1,5 @@
 #include <string>
+#include <chrono>
 #include "CudaJitDeriv.h"
 #include "ClassicDeriv.h"
 
@@ -8,9 +9,16 @@ std::string GenerateCudaKernal(ClassicDeriv cd);
 std::string GenerateUnrolledCudaKernal(ClassicDeriv cd);
 
 CudaJitDeriv::CudaJitDeriv(ClassicDeriv cd) 
-  : rolledUpJit(GenerateCudaKernal(cd))
-  , unrolledJit(GenerateUnrolledCudaKernal(cd))
 {
+  auto start = std::chrono::high_resolution_clock::now();
+  kernelJit(GenerateCudaKernal(cd))
+  auto stop = std::chrono::high_resolution_clock::now();
+  kernelJitTime = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
+  start = std::chrono::high_resolution_clock::now();
+  unrolledKernelJit(GenerateUnrolledCudaKernal(cd))
+  stop = std::chrono::high_resolution_clock::now();
+  unrolledKernelJitTime = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 };
 
 void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv) {
