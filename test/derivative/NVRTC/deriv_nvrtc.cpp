@@ -29,10 +29,10 @@
 // define CUDA thread and block size
 // make sure that NUM_THREADS * NUM_BLOCKS > NUM_CELL
 #define NUM_THREADS     32
-#define NUM_BLOCKS      157
+#define NUM_BLOCKS      31250
 
 // define constants for chemical forcing terms
-#define NUM_CELL        5000
+#define NUM_CELL        1000000
 #define NUM_RXN         500
 #define NUM_SPEC        200
 #define MAX_REACT       3      // maximum number of reactants per reaction
@@ -56,15 +56,15 @@ void solve(double *rateConst, double *state, double *deriv,                 \n\
   tid = blockIdx.x * blockDim.x + threadIdx.x;                              \n\
   if (tid < numcell) {                                                      \n\
      for (i_spec = 0; i_spec < numspec; ++i_spec)                           \n\
-         deriv[tid*numspec+i_spec] = 0.0;                                   \n\
+         deriv[i_spec*numcell+tid] = 0.0;                                   \n\
      for (i_rxn = 0; i_rxn < numrxn; ++i_rxn) {                             \n\
-         rate = rateConst[tid*numrxn+i_rxn];                                \n\
+         rate = rateConst[i_rxn*numcell+tid];                               \n\
          for (i_react = 0; i_react < numReact[i_rxn]; ++i_react)            \n\
-             rate *= state[tid*numspec+reactId[i_rxn*maxreact+i_react]];    \n\
+             rate *= state[reactId[i_rxn*maxreact+i_react]*numcell+tid];    \n\
          for (i_react = 0; i_react < numReact[i_rxn]; ++i_react)            \n\
-             deriv[tid*numspec+reactId[i_rxn*maxreact+i_react]] -= rate;    \n\
+             deriv[reactId[i_rxn*maxreact+i_react]*numcell+tid] -= rate;    \n\
          for (i_prod = 0; i_prod < numProd[i_rxn]; ++i_prod)                \n\
-             deriv[tid*numspec+prodId[i_rxn*maxprod+i_prod]] += rate;       \n\
+             deriv[prodId[i_rxn*maxprod+i_prod]*numcell+tid] += rate;       \n\
      }                                                                      \n\
   }                                                                         \n\
 }                                                                           \n";
@@ -88,10 +88,11 @@ int main(int argc, char **argv)
     const char *opts[] =
     {
         "--gpu-architecture=compute_70",
-        "--fmad=false"
+        "--fmad=false",
+        "-lineinfo"
     };
     nvrtcResult compileResult = nvrtcCompileProgram(prog,  // prog
-                                                    2,     // numOptions
+                                                    3,     // numOptions
                                                     opts); // options
 
     // Obtain compilation log from the program.
@@ -163,9 +164,9 @@ int main(int argc, char **argv)
     // Randomly initialize the rateConst and state
     for (i_cell = 0; i_cell < NUM_CELL; ++i_cell) {
         for (i_rxn = 0; i_rxn < NUM_RXN; ++i_rxn)
-            hrateConst[i_cell*NUM_RXN+i_rxn] = (rand() % 10000 + 1) / 100.0;
+            hrateConst[i_rxn*NUM_CELL+i_cell] = (rand() % 10000 + 1) / 100.0;
         for (i_spec = 0; i_spec < NUM_SPEC; ++i_spec)
-            hstate[i_cell*NUM_SPEC+i_spec] = (rand() % 100) / 100.0;
+            hstate[i_spec*NUM_CELL+i_cell] = (rand() % 100) / 100.0;
     }
 
     // Create output buffers.
@@ -177,15 +178,15 @@ int main(int argc, char **argv)
     double rate;
     for (i_cell = 0; i_cell < NUM_CELL; ++i_cell){
         for (i_spec = 0; i_spec < NUM_SPEC; ++i_spec)              
-            hderiv[i_cell*NUM_SPEC+i_spec] = 0.0;                      
+            hderiv[i_spec*NUM_CELL+i_cell] = 0.0;                      
         for (i_rxn = 0; i_rxn < NUM_RXN; ++i_rxn) {               
-            rate = hrateConst[i_cell*NUM_RXN+i_rxn];                  
+            rate = hrateConst[i_rxn*NUM_CELL+i_cell];                  
             for (i_react = 0; i_react < hnumReact[i_rxn]; ++i_react)
-                rate *= hstate[i_cell*NUM_SPEC+hreactId[i_rxn][i_react]]; 
+                rate *= hstate[hreactId[i_rxn][i_react]*NUM_CELL+i_cell]; 
             for (i_react = 0; i_react < hnumReact[i_rxn]; ++i_react)
-                hderiv[i_cell*NUM_SPEC+hreactId[i_rxn][i_react]] -= rate; 
+                hderiv[hreactId[i_rxn][i_react]*NUM_CELL+i_cell] -= rate; 
             for (i_prod = 0; i_prod < hnumProd[i_rxn]; ++i_prod)    
-                hderiv[i_cell*NUM_SPEC+hprodId[i_rxn][i_prod]] += rate;   
+                hderiv[hprodId[i_rxn][i_prod]*NUM_CELL+i_cell] += rate;   
         }                                                          
     }  
 
@@ -230,8 +231,8 @@ int main(int argc, char **argv)
     CUDA_SAFE_CALL( cuMemcpyDtoH(hderiv_tmp, dderiv, NUM_SPEC * NUM_CELL * sizeof(double)) );
     for (i_cell = 0; i_cell < NUM_CELL; ++i_cell) {
         for (i_spec = 0; i_spec < NUM_SPEC; ++i_spec) {
-            if ( abs( (hderiv[i_cell*NUM_SPEC+i_spec] - hderiv_tmp[i_cell*NUM_SPEC+i_spec]) / 
-                      hderiv[i_cell*NUM_SPEC+i_spec] ) > TOLERANCE ) {
+            if ( abs( (hderiv[i_spec*NUM_CELL+i_cell] - hderiv_tmp[i_spec*NUM_CELL+i_cell]) / 
+                      hderiv[i_spec*NUM_CELL+i_cell] ) > TOLERANCE ) {
                passed = false;
                break;
             }
