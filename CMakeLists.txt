@@ -11,6 +11,22 @@ include(FortranCInterface)
 FortranCInterface_VERIFY(CXX)
 
 ################################################################################
+# Options
+
+option(ENABLE_GPU "Enable support for GPUs" OFF)
+if(ENABLE_GPU)
+  add_compile_definitions(USE_GPU)
+endif()
+
+set(CUDA_THREADS "128" CACHE STRING "CUDA threads")
+set(CUDA_BLOCKS "32" CACHE STRING "CUDA blocks")
+set(NCELLS "100" CACHE STRING "Number of model grid cells")
+set(NREACTIONS "500" CACHE STRING "Number of reactions to simulate")
+set(NSPECIES "200" CACHE STRING "Number of species to simulate")
+set(NITERATIONS "10000" CACHE STRING "Number of iterations to run the simulate")
+add_compile_definitions(NUM_RXNS=${NREACTIONS} NUM_SPEC=${NSPECIES} NUM_REPEAT=${NITERATIONS})
+
+################################################################################
 # LLVM flags
 
 # set(LLVM_CMD "llvm-config --cxxflags --ldflags --system-libs --libs support core orcjit native irreader | tr '\\n' ' '")
@@ -33,16 +49,22 @@ add_definitions(${LLVM_DEFINITIONS_LIST})
 llvm_map_components_to_libnames(llvm_libs support core orcjit native irreader)
 
 ################################################################################
+# NVidia libraries
+
+if(ENABLE_GPU)
+  find_library(NVRTC_LIB nvrtc
+    DOC "NVidia RealTime Compiler library"
+    PATHS $ENV{LD_LIBRARY_PATH})
+  find_library(CUDA_LIB cuda
+    DOC "NVidia CUDA library"
+    PATHS $ENV{LD_LIBRARY_PATH})
+  set(NVIDIA_LIBS ${NVRTC_LIB} ${CUDA_LIB})
+endif( )
+
+################################################################################
 # JIT tests
 
 enable_testing( )
-
-set(NCELLS "100" CACHE STRING "Number of model grid cells")
-set(NREACTIONS "500" CACHE STRING "Number of reactions to simulate")
-set(NSPECIES "200" CACHE STRING "Number of species to simulate")
-set(NITERATIONS "10000" CACHE STRING "Number of iterations to run the simulate")
-
-add_compile_definitions(NUM_RXNS=${NREACTIONS} NUM_SPEC=${NSPECIES} NUM_REPEAT=${NITERATIONS})
 
 add_subdirectory(test)
 

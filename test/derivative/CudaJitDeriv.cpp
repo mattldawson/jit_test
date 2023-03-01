@@ -39,3 +39,4 @@ void solve(double *rateConst, double *state, double *deriv, int numcell)    \n\
 }
 
 } // namespace jit_test
+

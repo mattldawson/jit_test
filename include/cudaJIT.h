@@ -35,7 +35,7 @@
 
 namespace jit_test {
 
-class cudaJIT {
+class CudaJIT {
 private:
   nvrtcProgram prog;
   CUcontext cuContext;
@@ -45,15 +45,16 @@ private:
   char *ptx;
 
 public:
-  cudaJIT(const char *cudaStr, const char *functionName) {
+  CudaJIT(const char *cudaStr, const char *functionName) {
 
-    std::string fileName = functionName + ".cu";
+    std::string fileName{functionName};
+    fileName += ".cu";
 
     // Create an instance of nvrtcProgram with the CUDA code string
     NVRTC_SAFE_CALL(
         nvrtcCreateProgram(&(this->prog),   // program
         cudaStr,                            // CUDA code string
-        fileName,                           // name of CUDA file to generate
+        fileName.c_str(),                   // name of CUDA file to generate
         0,                                  // number of headers
         NULL,                               // headers
         NULL));                             // include name
@@ -89,31 +90,33 @@ public:
 
   }
 
-  ~cudaJIT() {
-    NVRTC_SAFE_CALL(nvrtcDestroyProgram(&(this->prog));
-    NVRTC_SAFE_CALL(cuModuleUnload(this->cuModule));
-    NVRTC_SAFE_CALL(cuCtxDestroy(this->cuContext));
+  ~CudaJIT() {
+    NVRTC_SAFE_CALL(nvrtcDestroyProgram(&(this->prog)));
+    CUDA_SAFE_CALL(cuModuleUnload(this->cuModule));
+    CUDA_SAFE_CALL(cuCtxDestroy(this->cuContext));
   }
 
   // Output the compilation log, if one exists
-  PrintLog() {
+  void PrintLog() {
     size_t logSize;
-    NVRTC_SAFE_CALL(nvrtcGetProgramLogSize(this.prog, &logSize));
+    NVRTC_SAFE_CALL(nvrtcGetProgramLogSize(this->prog, &logSize));
     char *log = new char[logSize];
-    NVRTC_SAFE_CALL(nvrtcGetProgramLog(this.prog, log));
+    NVRTC_SAFE_CALL(nvrtcGetProgramLog(this->prog, log));
     if (logSize > 1) std::cout << log << '\n';
     delete[] log;
   }
 
   // Run generated code
-  Run(void *args[]) {
+  void Run(void *args[]) {
     CUDA_SAFE_CALL(
         cuLaunchKernel(this->cuKernel,
-                       NUM_BLOCKS, 1, 1,    // grid dim
-                       NUM_THREADS, 1, 1,   // block dim
+                       CUDA_BLOCKS, 1, 1,   // grid dim
+                       CUDA_THREADS, 1, 1,  // block dim
                        0, NULL,             // shared mem and stream
                        args, 0));           // arguments
     CUDA_SAFE_CALL(cuCtxSynchronize());
   }
 
-}
+};
+
+} // namespace jit_test
