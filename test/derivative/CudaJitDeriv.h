@@ -14,7 +14,8 @@ public:
   void Solve(double *rateConst, double *state, double *deriv, int numcell);
 
 private:
-  std::unique_ptr<CudaJIT> kernelJit;
+  CudaJIT kernelJit;
 };
-}
+
+} // namespace jit_test
 

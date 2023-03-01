@@ -61,7 +61,8 @@ endif()
 if(ENABLE_GPU)
   find_library(NVRTC_LIB nvrtc
     DOC "NVidia RealTime Compiler library"
-    PATHS $ENV{LD_LIBRARY_PATH})
+    PATHS $ENV{LD_LIBRARY_PATH}
+          /glade/u/apps/dav/opt/cuda/11.4.0/lib64/)
   find_library(CUDA_LIB cuda
     DOC "NVidia CUDA library"
     PATHS $ENV{LD_LIBRARY_PATH})

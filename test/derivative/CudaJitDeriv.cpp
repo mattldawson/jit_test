@@ -8,11 +8,13 @@ namespace jit_test {
 std::string GenerateCudaKernel(ClassicDeriv cd);
 
 CudaJitDeriv::CudaJitDeriv(ClassicDeriv cd) :
-  kernelJit(new CudaJIT{ GenerateCudaKernel(cd).c_str(), "kernel" })
+  kernelJit(GenerateCudaKernel(cd).c_str(), "kernel" )
 { };
 
 void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv, int numcell) {
   CUdeviceptr drateConst, dstate, dderiv, dnumcell;
+
+  for (int i = 0; i < NUM_SPEC * NUM_CELLS; ++i) deriv[i] = 0.0;
 
   // Allocate GPU memory
   CUDA_SAFE_CALL( cuMemAlloc(&drateConst, NUM_RXNS * NUM_CELLS * sizeof(double)) );
@@ -28,7 +30,7 @@ void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv, int nu
   // Call the function
   void *args[] = { &drateConst, &dstate, &dderiv, &dnumcell };
 
-  kernelJit->Run(args);
+  kernelJit.Run(args);
 
   // Get the result
   CUDA_SAFE_CALL( cuMemcpyDtoH(deriv, dderiv, NUM_SPEC * NUM_CELLS * sizeof(double)) );
@@ -49,7 +51,6 @@ void solve(double *rateConst, double *state, double *deriv, int numcell)    \n\
   double rate;                                                              \n\
                                                                             \n\
   tid = blockIdx.x * blockDim.x + threadIdx.x;                              \n\
-  memset(deriv, 0, N*sizeof(*deriv));                                       \n\
   if (tid < numcell) {                                                      \n";
 
   for (int i_rxn = 0; i_rxn < cd.numRxns; ++i_rxn) {
