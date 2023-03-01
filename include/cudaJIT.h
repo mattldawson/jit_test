@@ -59,7 +59,9 @@ public:
         NULL,                               // headers
         NULL));                             // include name
 
-    // Compile the program for compute_35 with fmad disabled
+    // Compile the program for compute_70 (V100) or compute_80 (A100) with fmad disabled.
+    // TODO Jian - this fails for me on Casper unless I use compute_35
+    //             (although I'm not sure if I'm requesting the right GPUs)
     const char *opts[] =
     {
       "--gpu-architecture=compute_35",
