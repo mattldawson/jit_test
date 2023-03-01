@@ -28,8 +28,8 @@
 
 // define CUDA thread and block size
 // make sure that NUM_THREADS * NUM_BLOCKS > NUM_CELL
-#define NUM_THREADS     32
-#define NUM_BLOCKS      31250
+#define NUM_THREADS     128
+#define NUM_BLOCKS      7813
 
 // define constants for chemical forcing terms
 #define NUM_CELL        1000000
@@ -193,6 +193,25 @@ int main(int argc, char **argv)
     // Allocate GPU memory space for device variables
     CUdeviceptr drateConst, dstate, dderiv, dnumReact, dnumProd, dreactId, dprodId;
 
+#if 1
+    size_t read_temp, write_temp;
+
+    read_temp = NUM_RXN * NUM_CELL * sizeof(double) +    // rateConst
+                MAX_REACT * NUM_SPEC * NUM_CELL * sizeof(double) +
+                MAX_PROD * NUM_RXN * NUM_CELL * sizeof(double) +  // dderiv
+                MAX_REACT * NUM_RXN * NUM_CELL * sizeof(double) +  // state
+                NUM_CELL * NUM_RXN * sizeof(int) + // numReact
+                NUM_CELL * NUM_RXN * sizeof(int) + // numProd
+                NUM_CELL * NUM_RXN * MAX_REACT * sizeof(int) + // reactId
+                NUM_CELL * NUM_RXN * MAX_PROD * sizeof(int);  // prodId
+
+    write_temp = NUM_SPEC * NUM_CELL * sizeof(double) + 
+                 MAX_REACT * NUM_RXN * NUM_CELL * sizeof(double) +
+                 MAX_PROD * NUM_RXN * NUM_CELL * sizeof(double);// dderiv
+
+    std::cout << "one-time read volume: " << read_temp / 1.e9 << " GB " << std::endl;
+    std::cout << "one-time write volume: " << write_temp / 1.e9 << " GB " << std::endl;
+#endif
     CUDA_SAFE_CALL( cuMemAlloc(&drateConst, NUM_RXN * NUM_CELL * sizeof(double)) );
     CUDA_SAFE_CALL( cuMemAlloc(&dstate, NUM_SPEC * NUM_CELL * sizeof(double)) );
     CUDA_SAFE_CALL( cuMemAlloc(&dderiv, NUM_SPEC * NUM_CELL * sizeof(double)) );
