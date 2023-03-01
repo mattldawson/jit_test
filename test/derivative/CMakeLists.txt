@@ -12,16 +12,24 @@ add_dependencies(derivative_test generated-file)
 # needed to fine the fc_mangle.h file
 target_include_directories(derivative_test PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
-target_sources(derivative_test 
-  PUBLIC 
+if(ENABLE_LLVM)
+  set(LLVM_SRC JitDeriv.cpp)
+endif()
+
+if(ENABLE_GPU)
+  set(CUDA_SRC CudaJitDeriv.cpp)
+endif()
+
+target_sources(derivative_test
+  PUBLIC
     ${CMAKE_CURRENT_BINARY_DIR}/Fortran/preprocessed.F90
     ClassicDeriv.cpp
-    CudaJitDeriv.cpp
-    JitDeriv.cpp
-    JitTest.cpp 
+    ${LLVM_SRC}
+    ${CUDA_SRC}
+    JitTest.cpp
 )
 
-target_link_libraries(derivative_test ${llvm_libs} )
+target_link_libraries(derivative_test ${llvm_libs} ${NVIDIA_LIBS})
 
 add_test(NAME derivative COMMAND derivative_test)
 

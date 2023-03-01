@@ -1,4 +1,6 @@
+#ifdef USE_LLVM
 #include "jit_mat_mul.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -38,6 +40,7 @@ int main(){
       for(j=0;j<colB;++j)
         c[i][j] = 99999;
 
+#ifdef USE_LLVM
     MatMulFunc jit_mat_mul = create_mat_mul_function(rowA, colA, colB);
 
     (*jit_mat_mul)((int*)a, (int*)b, (int*)c);
@@ -49,6 +52,7 @@ int main(){
           printf("%d\t",c[i][j]);
        printf("\n");
     }
+#endif
 
     return 0;
 }

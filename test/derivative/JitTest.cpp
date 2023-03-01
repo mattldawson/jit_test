@@ -12,8 +12,12 @@
 //===----------------------------------------------------------------------===//
 
 #include "ClassicDeriv.h"
+#ifdef USE_LLVM
 #include "JitDeriv.h"
+#endif
+#ifdef USE_GPU
 #include "CudaJitDeriv.h"
+#endif
 #include <assert.h>
 #include <chrono>
 #include <iostream>
@@ -32,30 +36,22 @@ bool close_enough(const double& first, const double& second, const double tolera
 
 int main() {
 
+#ifdef USE_LLVM
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
+#endif
 
   ClassicDeriv classicDeriv{};
-  JitDeriv jitDeriv{};
-  CudaJitDeriv cudaJitDeriv(classicDeriv);
+  double *fClassic;
+  double *fPreprocessed;
+  fClassic = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
+  fPreprocessed = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
+
   double *rateConst;
   double *state;
-  double *fClassic;
-  double *fJit;
-  double *fPreprocessed;
-  double *fGPUJit;
-  double *fGPUUnrolledJit;
-  double *fGPUMemReorderJit;
-
   rateConst = (double *)malloc(classicDeriv.numRxns * classicDeriv.numCell * sizeof(double));
   state = (double *)malloc(classicDeriv.numSpec * classicDeriv.numCell * sizeof(double));
-  fClassic = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
-  fJit = (double *)calloc(classicDeriv.numSpec  *classicDeriv.numCell, sizeof(double));
-  fPreprocessed = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
-  fGPUJit = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
-  fGPUUnrolledJit = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
-  fGPUMemReorderJit = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
 
   for (int i_cell = 0; i_cell < classicDeriv.numCell; ++i_cell) {
     for (int i_rxn = 0; i_rxn < classicDeriv.numRxns; ++i_rxn)
@@ -74,6 +70,11 @@ int main() {
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
   // CPU Jit Derivative
+#ifdef USE_LLVM
+  JitDeriv jitDeriv{};
+  double *fJit;
+  fJit = (double *)calloc(classicDeriv.numSpec  *classicDeriv.numCell, sizeof(double));
+
   start = std::chrono::high_resolution_clock::now();
   jitDeriv.DerivCodeGen(classicDeriv);
   stop = std::chrono::high_resolution_clock::now();
@@ -88,6 +89,7 @@ int main() {
 
   auto jitTime =
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+#endif
 
   // Fortran Preprocessed Derivative
   start = std::chrono::high_resolution_clock::now();
@@ -97,35 +99,21 @@ int main() {
 
   auto preprocessedTime =
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-  
 
   // GPU Jit Derivative
+#ifdef USE_GPU
+  CudaJitDeriv cudaJitDeriv(classicDeriv);
+  double *fGPUJit;
+  fGPUJit = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
 
   start = std::chrono::high_resolution_clock::now();
   for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
-    cudaJitDeriv.Solve(rateConst, state, fGPUJit);
+    cudaJitDeriv.Solve(rateConst, state, fGPUJit, classicDeriv.numCell);
   stop = std::chrono::high_resolution_clock::now();
 
   auto gpuJitTime =
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-
-  // Unrolled GPU
-  start = std::chrono::high_resolution_clock::now();
-  for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
-    cudaJitDeriv.SolveUnrolled(rateConst, state, fGPUUnrolledJit);
-  stop = std::chrono::high_resolution_clock::now();
-
-  auto gpuUnrolledJitTime =
-      std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-
-  // Memory-Reordered GPU
-  start = std::chrono::high_resolution_clock::now();
-  for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
-    cudaJitDeriv.SolveMemReorder(rateConst, state, fGPUMemReorderJit);
-  stop = std::chrono::high_resolution_clock::now();
-
-  auto gpuMemReordderJitTime =
-      std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+#endif
 
   for (int i_cell = 0; i_cell < classicDeriv.numCell; ++i_cell) {
     for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec) {
@@ -138,24 +126,38 @@ int main() {
                 << "  diff[" << i_spec << "] = " << (fPreprocessed[i_spec] - fClassic[i_spec]);
 #endif
       int i = i_cell * classicDeriv.numSpec + i_spec;
-      assert(fClassic[i] == fJit[i]);
       assert(close_enough(fClassic[i], fPreprocessed[i]));
-      // assert(close_enough(fClassic[i], fGPUJit[i]));
+#ifdef USE_LLVM
+      assert(fClassic[i] == fJit[i]);
+#endif
+#ifdef USE_GPU
+      assert(close_enough(fClassic[i], fGPUJit[i]));
+#endif
     }
   }
 
   std::cout << "Classic: " << classicTime.count()
-            << "; CPU JIT: " << jitTime.count() 
-            << "; Preprocessed: " << preprocessedTime.count() 
-            << "; GPU Jit: " << gpuJitTime.count() 
+            << "; Preprocessed: " << preprocessedTime.count()
+#ifdef USE_LLVM
+            << "; CPU JIT: " << jitTime.count()
+#endif
+#ifdef USE_GPU
+            << "; GPU Jit: " << gpuJitTime.count()
+#endif
             << std::endl
-            << "JIT speedup over classic: "
-            << ((double)classicTime.count()) / (double)jitTime.count() << std::endl
             << "Preprocessed speedup over classic: "
             << ((double)classicTime.count()) / (double)preprocessedTime.count() << std::endl
+#ifdef USE_LLVM
+            << "JIT speedup over classic: "
+            << ((double)classicTime.count()) / (double)jitTime.count() << std::endl
             << "CPU JIT compile time: " << jitCompileTime.count()
-            << "GPU JIT compile time: " << cudaJitCompileTime.count()
+            << std::endl
+#endif
+#ifdef USE_GPU
+            << "GPU JIT speedup over classic: "
+            << ((double)classicTime.count()) / (double)gpuJitTime.count()
+            << std::endl
+#endif
             << std::endl;
-
   return 0;
 }
