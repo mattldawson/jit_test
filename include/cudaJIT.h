@@ -45,6 +45,8 @@ private:
   char *ptx;
 
 public:
+  CudaJIT() {}
+
   CudaJIT(const char *cudaStr, const char *functionName) {
 
     std::string fileName{functionName};

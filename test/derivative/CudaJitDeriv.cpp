@@ -12,17 +12,17 @@ std::string GenerateMemReorderCudaKernal(ClassicDeriv cd);
 CudaJitDeriv::CudaJitDeriv(ClassicDeriv cd)
 {
   auto start = std::chrono::high_resolution_clock::now();
-  kernelJit(GenerateCudaKernal(cd), "kernel")
+  kernelJit = CudaJIT(GenerateCudaKernal(cd).c_str(), "kernel");
   auto stop = std::chrono::high_resolution_clock::now();
   kernelJitTime = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
   start = std::chrono::high_resolution_clock::now();
-  unrolledKernelJit(GenerateUnrolledCudaKernal(cd), "unrolled_kernel")
+  unrolledKernelJit = CudaJIT(GenerateUnrolledCudaKernal(cd).c_str(), "unrolled_kernel");
   stop = std::chrono::high_resolution_clock::now();
   unrolledKernelJitTime = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
   start = std::chrono::high_resolution_clock::now();
-  MemReorderKernelJit(GenerateMemReorderCudaKernal(cd), "memory_reorder_kernel")
+  MemReorderKernelJit = CudaJIT(GenerateMemReorderCudaKernal(cd).c_str(), "memory_reorder_kernel");
   stop = std::chrono::high_resolution_clock::now();
   MemReorderKernelJitTime = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 };
