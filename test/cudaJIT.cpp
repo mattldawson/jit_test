@@ -21,6 +21,11 @@ int main() {
 
   CudaJIT cudaJit = CudaJIT{ saxpyStr, "saxpy" };
 
+  std::cout << "CUDA code" << std::endl
+            << saxpyStr << std::endl << std::endl
+            << "PTX" << std::endl
+            << cudaJit.Ptx() << std::endl;
+
   // Generate input for execution, and create output buffers.
   size_t num_items = CUDA_THREADS * CUDA_BLOCKS;
   size_t bufferSize = num_items * sizeof(float);

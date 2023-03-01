@@ -107,6 +107,10 @@ public:
     delete[] log;
   }
 
+  std::string Ptx() {
+    return std::string{ this->ptx };
+  }
+
   // Run generated code
   void Run(void *args[]) {
     CUDA_SAFE_CALL(
