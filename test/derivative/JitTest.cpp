@@ -45,6 +45,8 @@ int main() {
   double *fJit;
   double *fPreprocessed;
   double *fGPUJit;
+  double *fGPUUnrolledJit;
+  double *fGPUMemReorderJit;
 
   rateConst = (double *)malloc(classicDeriv.numRxns * classicDeriv.numCell * sizeof(double));
   state = (double *)malloc(classicDeriv.numSpec * classicDeriv.numCell * sizeof(double));
@@ -52,6 +54,8 @@ int main() {
   fJit = (double *)calloc(classicDeriv.numSpec  *classicDeriv.numCell, sizeof(double));
   fPreprocessed = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
   fGPUJit = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
+  fGPUUnrolledJit = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
+  fGPUMemReorderJit = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
 
   for (int i_cell = 0; i_cell < classicDeriv.numCell; ++i_cell) {
     for (int i_rxn = 0; i_rxn < classicDeriv.numRxns; ++i_rxn)
@@ -96,13 +100,6 @@ int main() {
   
 
   // GPU Jit Derivative
-  start = std::chrono::high_resolution_clock::now();
-  auto kernel_string = cudaJitDeriv.GenerateCudaKernal(classicDeriv);
-  std::cout << kernel_string;
-  stop = std::chrono::high_resolution_clock::now();
-
-  auto cudaJitCompileTime =
-      std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
   start = std::chrono::high_resolution_clock::now();
   for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
@@ -110,6 +107,24 @@ int main() {
   stop = std::chrono::high_resolution_clock::now();
 
   auto gpuJitTime =
+      std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
+  // Unrolled GPU
+  start = std::chrono::high_resolution_clock::now();
+  for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
+    cudaJitDeriv.SolveUnrolled(rateConst, state, fGPUUnrolledJit);
+  stop = std::chrono::high_resolution_clock::now();
+
+  auto gpuUnrolledJitTime =
+      std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
+  // Memory-Reordered GPU
+  start = std::chrono::high_resolution_clock::now();
+  for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
+    cudaJitDeriv.SolveMemReorder(rateConst, state, fGPUMemReorderJit);
+  stop = std::chrono::high_resolution_clock::now();
+
+  auto gpuMemReordderJitTime =
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
   for (int i_cell = 0; i_cell < classicDeriv.numCell; ++i_cell) {
