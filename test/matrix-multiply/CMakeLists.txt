@@ -1,7 +1,13 @@
 ################################################################################
 # Test of chemical forcing (matrix_multiply) function
 
-file(GLOB MAT_MUL_TEST_SRCS *.c*)
+if(ENABLE_LLVM)
+  set(LLVM_SRC jit_mat_mul.cpp)
+endif()
+set(MAT_MUL_TEST_SRCS
+      main.c
+      mat_mul.c
+      ${LLVM_SRC})
 
 add_executable(matrix_multiply_test ${MAT_MUL_TEST_SRCS})
 
