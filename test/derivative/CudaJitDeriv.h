@@ -2,6 +2,7 @@
 
 #include <string>
 #include "cudaJIT.h"
+#include <memory>
 
 namespace jit_test {
 
@@ -15,9 +16,9 @@ public:
   void SolveMemReorder(double *rateConst, double *state, double *deriv, int numcell);
 
 private:
-  std::unique_ptr<jit_test::cudaJIT> kernelJit;
-  std::unique_ptr<jit_test::cudaJIT> unrolledKernelJit;
-  std::unique_ptr<jit_test::cudaJIT> MemReorderKernelJit;
+  std::unique_ptr<jit_test::CudaJIT> kernelJit;
+  std::unique_ptr<jit_test::CudaJIT> unrolledKernelJit;
+  std::unique_ptr<jit_test::CudaJIT> MemReorderKernelJit;
 
   std::chrono::duration kernelJitTime;
   std::chrono::duration unrolledKernelJitTime;

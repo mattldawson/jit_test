@@ -1,8 +1,8 @@
 ################################################################################
 # JIT tests
 
-#add_subdirectory(derivative)
-#add_subdirectory(matrix-multiply)
+add_subdirectory(derivative)
+add_subdirectory(matrix-multiply)
 
 ################################################################################
 # JIT tests
