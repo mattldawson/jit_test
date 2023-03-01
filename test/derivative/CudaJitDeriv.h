@@ -20,9 +20,9 @@ private:
   std::unique_ptr<jit_test::CudaJIT> unrolledKernelJit;
   std::unique_ptr<jit_test::CudaJIT> MemReorderKernelJit;
 
-  std::chrono::duration kernelJitTime;
-  std::chrono::duration unrolledKernelJitTime;
-  std::chrono::duration MemReorderKernelJitTime;
+  std::chrono::duration<double> kernelJitTime;
+  std::chrono::duration<double> unrolledKernelJitTime;
+  std::chrono::duration<double> MemReorderKernelJitTime;
 };
 }
 
