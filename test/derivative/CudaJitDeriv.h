@@ -2,7 +2,6 @@
 
 #include <string>
 #include "cudaJIT.h"
-#include <memory>
 
 namespace jit_test {
 
