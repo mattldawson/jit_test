@@ -12,23 +12,21 @@ CudaJitDeriv::CudaJitDeriv(ClassicDeriv cd) :
 { };
 
 void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv, int numcell) {
-  CUdeviceptr drateConst, dstate, dderiv, dnumcell;
+  CUdeviceptr drateConst, dstate, dderiv;
 
   for (int i = 0; i < NUM_SPEC * NUM_CELLS; ++i) deriv[i] = 0.0;
 
   // Allocate GPU memory
   CUDA_SAFE_CALL( cuMemAlloc(&drateConst, NUM_RXNS * NUM_CELLS * sizeof(double)) );
   CUDA_SAFE_CALL( cuMemAlloc(&dstate, NUM_SPEC * NUM_CELLS * sizeof(double)) );
-  CUDA_SAFE_CALL( cuMemAlloc(&dnumcell, sizeof(int)) );
   CUDA_SAFE_CALL( cuMemAlloc(&dderiv, NUM_SPEC * NUM_CELLS * sizeof(double)) );
 
   // copy to GPU
   CUDA_SAFE_CALL( cuMemcpyHtoD(drateConst, rateConst, NUM_RXNS * NUM_CELLS * sizeof(double)) );
   CUDA_SAFE_CALL( cuMemcpyHtoD(dstate, state, NUM_SPEC * NUM_CELLS * sizeof(double)) );
-  CUDA_SAFE_CALL( cuMemcpyHtoD(dnumcell, &numcell, sizeof(int)) );
 
   // Call the function
-  void *args[] = { &drateConst, &dstate, &dderiv, &dnumcell };
+  void *args[] = { &drateConst, &dstate, &dderiv, &numcell };
 
   kernelJit.Run(args);
 
@@ -38,7 +36,6 @@ void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv, int nu
   CUDA_SAFE_CALL( cuMemFree(drateConst) );
   CUDA_SAFE_CALL( cuMemFree(dstate) );
   CUDA_SAFE_CALL( cuMemFree(dderiv) );
-  CUDA_SAFE_CALL( cuMemFree(dnumcell) );
 }
 
 std::string GenerateCudaKernel(ClassicDeriv cd) {
