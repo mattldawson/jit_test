@@ -31,13 +31,13 @@ void CudaJitDeriv::SolveMemReorder(double *rateConst, double *state, double *der
   CUdeviceptr drateConst, dstate, dderiv;
 
   // Allocate GPU memory
-  CUDA_SAFE_CALL( cuMemAlloc(&drateConst, NUM_RXN * NUM_CELL * sizeof(double)) );
-  CUDA_SAFE_CALL( cuMemAlloc(&dstate, NUM_SPEC * NUM_CELL * sizeof(double)) );
-  CUDA_SAFE_CALL( cuMemAlloc(&dderiv, NUM_SPEC * NUM_CELL * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemAlloc(&drateConst, NUM_RXNS * NUM_CELLS * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemAlloc(&dstate, NUM_SPEC * NUM_CELLS * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemAlloc(&dderiv, NUM_SPEC * NUM_CELLS * sizeof(double)) );
   
   // copy to GPU
-  CUDA_SAFE_CALL( cuMemcpyHtoD(drateConst, rateConst, NUM_RXN * NUM_CELL * sizeof(double)) );
-  CUDA_SAFE_CALL( cuMemcpyHtoD(dstate, state, NUM_SPEC * NUM_CELL * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemcpyHtoD(drateConst, rateConst, NUM_RXNS * NUM_CELLS * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemcpyHtoD(dstate, state, NUM_SPEC * NUM_CELLS * sizeof(double)) );
   
   // Call the function
   void *args[] = { &drateConst, &dstate, &dderiv, &numcell };
@@ -45,7 +45,7 @@ void CudaJitDeriv::SolveMemReorder(double *rateConst, double *state, double *der
   MemReorderKernelJit.Run(args);
   
   // Get the result
-  CUDA_SAFE_CALL( cuMemcpyDtoH(deriv, dderiv, NUM_SPEC * NUM_CELL * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemcpyDtoH(deriv, dderiv, NUM_SPEC * NUM_CELLS * sizeof(double)) );
   
   CUDA_SAFE_CALL( cuMemFree(drateConst) );
   CUDA_SAFE_CALL( cuMemFree(dstate) );
@@ -57,13 +57,13 @@ void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv, int nu
   CUdeviceptr drateConst, dstate, dderiv;
 
   // Allocate GPU memory
-  CUDA_SAFE_CALL( cuMemAlloc(&drateConst, NUM_RXN * NUM_CELL * sizeof(double)) );
-  CUDA_SAFE_CALL( cuMemAlloc(&dstate, NUM_SPEC * NUM_CELL * sizeof(double)) );
-  CUDA_SAFE_CALL( cuMemAlloc(&dderiv, NUM_SPEC * NUM_CELL * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemAlloc(&drateConst, NUM_RXNS * NUM_CELLS * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemAlloc(&dstate, NUM_SPEC * NUM_CELLS * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemAlloc(&dderiv, NUM_SPEC * NUM_CELLS * sizeof(double)) );
 
   // copy to GPU
-  CUDA_SAFE_CALL( cuMemcpyHtoD(drateConst, rateConst, NUM_RXN * NUM_CELL * sizeof(double)) );
-  CUDA_SAFE_CALL( cuMemcpyHtoD(dstate, state, NUM_SPEC * NUM_CELL * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemcpyHtoD(drateConst, rateConst, NUM_RXNS * NUM_CELLS * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemcpyHtoD(dstate, state, NUM_SPEC * NUM_CELLS * sizeof(double)) );
 
   // Call the function
   void *args[] = { &drateConst, &dstate, &dderiv, &numcell };
@@ -71,7 +71,7 @@ void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv, int nu
   KernelJit.Run(args);
 
   // Get the result
-  CUDA_SAFE_CALL( cuMemcpyDtoH(deriv, dderiv, NUM_SPEC * NUM_CELL * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemcpyDtoH(deriv, dderiv, NUM_SPEC * NUM_CELLS * sizeof(double)) );
 
   CUDA_SAFE_CALL( cuMemFree(drateConst) );
   CUDA_SAFE_CALL( cuMemFree(dstate) );
@@ -83,14 +83,14 @@ void CudaJitDeriv::SolveUnrolled(double *rateConst, double *state, double *deriv
   CUdeviceptr drateConst, dstate, dderiv, dnumcell;
 
   // Allocate GPU memory
-  CUDA_SAFE_CALL( cuMemAlloc(&drateConst, NUM_RXN * NUM_CELL * sizeof(double)) );
-  CUDA_SAFE_CALL( cuMemAlloc(&dstate, NUM_SPEC * NUM_CELL * sizeof(double)) );
-  CUDA_SAFE_CALL( cuMemAlloc(&dderiv, NUM_SPEC * NUM_CELL * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemAlloc(&drateConst, NUM_RXNS * NUM_CELLS * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemAlloc(&dstate, NUM_SPEC * NUM_CELLS * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemAlloc(&dderiv, NUM_SPEC * NUM_CELLS * sizeof(double)) );
   CUDA_SAFE_CALL( cuMemAlloc(&dnumcell, 1 * sizeof(int)) );
 
   // copy to GPU
-  CUDA_SAFE_CALL( cuMemcpyHtoD(drateConst, rateConst, NUM_RXN * NUM_CELL * sizeof(double)) );
-  CUDA_SAFE_CALL( cuMemcpyHtoD(dstate, state, NUM_SPEC * NUM_CELL * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemcpyHtoD(drateConst, rateConst, NUM_RXNS * NUM_CELLS * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemcpyHtoD(dstate, state, NUM_SPEC * NUM_CELLS * sizeof(double)) );
   CUDA_SAFE_CALL( cuMemcpyHtoD(dnumcell, numcell, 1 * sizeof(int)) );
 
   // Call the function
@@ -99,7 +99,7 @@ void CudaJitDeriv::SolveUnrolled(double *rateConst, double *state, double *deriv
   unrolledKernelJit.Run(args);
 
   // Get the result
-  CUDA_SAFE_CALL( cuMemcpyDtoH(deriv, dderiv, NUM_SPEC * NUM_CELL * sizeof(double)) );
+  CUDA_SAFE_CALL( cuMemcpyDtoH(deriv, dderiv, NUM_SPEC * NUM_CELLS * sizeof(double)) );
 
   CUDA_SAFE_CALL( cuMemFree(drateConst) );
   CUDA_SAFE_CALL( cuMemFree(dstate) );
