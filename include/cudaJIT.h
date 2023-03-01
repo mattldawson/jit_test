@@ -60,11 +60,10 @@ public:
         NULL));                             // include name
 
     // Compile the program for compute_70 (V100) or compute_80 (A100) with fmad disabled.
-    // TODO Jian - this fails for me on Casper unless I use compute_35
-    //             (although I'm not sure if I'm requesting the right GPUs)
+    // Make sure you request the correct GPU type for your compute node 
     const char *opts[] =
     {
-      "--gpu-architecture=compute_35",
+      "--gpu-architecture=compute_70",
       "--fmad=false"
     };
     nvrtcResult compileResult = nvrtcCompileProgram(this->prog,  // prog
