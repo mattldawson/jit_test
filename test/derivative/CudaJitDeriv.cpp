@@ -8,7 +8,7 @@ namespace jit_test {
 std::string GenerateCudaKernel(ClassicDeriv cd);
 
 CudaJitDeriv::CudaJitDeriv(ClassicDeriv cd) :
-  kernelJit(GenerateCudaKernel(cd).c_str(), "kernel" )
+  kernelJit(GenerateCudaKernel(cd).c_str(), "solve" )
 { };
 
 void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv, int numcell) {
