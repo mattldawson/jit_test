@@ -102,7 +102,11 @@ int main() {
 
   // GPU Jit Derivative
 #ifdef USE_GPU
+  start = std::chrono::high_resolution_clock::now();
   CudaJitDeriv cudaJitDeriv(classicDeriv);
+  stop = std::chrono::high_resolution_clock::now();
+  auto gpuJitCompileTime =
+      std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
   double *fGPUJit;
   fGPUJit = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
 
@@ -156,6 +160,7 @@ int main() {
 #ifdef USE_GPU
             << "GPU JIT speedup over classic: "
             << ((double)classicTime.count()) / (double)gpuJitTime.count()
+            << "GPU JIT compile time: " << gpuJitCompileTime.count()
             << std::endl
 #endif
             << std::endl;
