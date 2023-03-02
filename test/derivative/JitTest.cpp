@@ -111,7 +111,7 @@ int main() {
   double *fGPUJit;
   fGPUJit = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
 
-  std::chrono::duration<long, std::nano> gpuJitTime = 0;
+  std::chrono::duration<long, std::nano> gpuJitTime{};
   for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
     gpuJitTime += cudaJitDeriv.Solve(rateConst, state, fGPUJit, classicDeriv.numCell);
 
@@ -124,7 +124,7 @@ int main() {
   double *fGPUGeneral;
   fGPUGeneral = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
 
-  std::chrono::duration<long, std::nano> gpuGeneralTime = 0;
+  std::chrono::duration<long, std::nano> gpuGeneralTime{};
   for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
     gpuGeneralTime += cudaGeneralDeriv.Solve(rateConst, state, fGPUGeneral, classicDeriv);
 
@@ -146,7 +146,7 @@ int main() {
   double *fFlippedGPUJit;
   fFlippedGPUJit = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
 
-  std::chrono::duration<long, std::nano> gpuFlippedJitTime = 0;
+  std::chrono::duration<long, std::nano> gpuFlippedJitTime{};
   for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep) {
     // Reorder arrays
     for (int i_cell = 0; i_cell < classicDeriv.numCell; ++i_cell) {
@@ -171,7 +171,7 @@ int main() {
   double *fFlippedGPUGeneral;
   fFlippedGPUGeneral = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
 
-  std::chrono::duration<long, std::nano> gpuFlippedGeneralTime = 0;
+  std::chrono::duration<long, std::nano> gpuFlippedGeneralTime{};
   for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep) {
     // Reorder arrays
     for (int i_cell = 0; i_cell < classicDeriv.numCell; ++i_cell) {
