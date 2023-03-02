@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
-project(JIT_TEST LANGUAGES CXX C Fortran)
-set (CMAKE_CXX_STANDARD 17)
+project(JIT_TEST LANGUAGES CXX C Fortran CUDA)
+set (CMAKE_CXX_STANDARD 11)
 
 # connect fortran and c++
 # https://enccs.github.io/cmake-workshop/cxx-fortran/
@@ -14,8 +14,12 @@ FortranCInterface_VERIFY(CXX)
 # Options
 
 option(ENABLE_GPU "Enable support for GPUs" OFF)
+option(ENABLE_COMPILED "Include compiled GPU kernels in comparison" OFF)
 if(ENABLE_GPU)
   add_compile_definitions(USE_GPU)
+endif()
+if(ENABLE_COMPILED)
+  add_compile_definitions(USE_COMPILED)
 endif()
 option(ENABLE_LLVM "Enable support for LLVM JIT" ON)
 if(ENABLE_LLVM)
