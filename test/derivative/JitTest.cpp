@@ -220,43 +220,27 @@ int main() {
     }
   }
 
-  std::cout << "Classic: " << classicTime.count()
-            << "; Preprocessed: " << preprocessedTime.count()
-#ifdef USE_LLVM
-            << "; CPU JIT: " << jitTime.count()
-#endif
+  std::cout << "Cells, Reactions, Species"
+            << "Classic, Preprocessed"
 #ifdef USE_GPU
-            << "; GPU Jit: " << gpuJitTime.count()
-            << "; GPU reordered memory Jit: " << gpuFlippedJitTime.count()
-            << "; GPU General: " << gpuGeneralTime.count()
-            << "; GPU reordered memory general: " << gpuFlippedGeneralTime.count()
+            << ", GPU JIT, GPU reordered memory JIT, GPU General, GPU reordered memory general"
 #endif
-            << std::endl
-            << "Preprocessed speedup over classic: "
-            << ((double)classicTime.count()) / (double)preprocessedTime.count() << std::endl
 #ifdef USE_LLVM
-            << "JIT speedup over classic: "
-            << ((double)classicTime.count()) / (double)jitTime.count() << std::endl
-            << "CPU JIT compile time: " << jitCompileTime.count()
-            << std::endl
+            << ", CPU JIT"
 #endif
+            << std::endl;
+
+  std::cout << NUM_CELLS << "," << NUM_RXNS << ", " << NUM_SPEC
+            << classicTime.count() << "," 
+            << preprocessedTime.count() << "," 
 #ifdef USE_GPU
-            << "GPU JIT speedup over classic: "
-            << ((double)classicTime.count()) / (double)gpuJitTime.count() << std::endl
-            << "GPU JIT compile time: " << gpuJitCompileTime.count()
-            << std::endl
-            << "GPU JIT with reordered memory speedup over classic: "
-            << ((double)classicTime.count()) / (double)gpuFlippedJitTime.count() << std::endl
-            << "GPU JIT with reordered memory compile time: " << gpuFlippedJitCompileTime.count()
-            << std::endl
-            << "GPU general solution speedup over classic: "
-            << ((double)classicTime.count()) / (double)gpuGeneralTime.count() << std::endl
-            << "GPU general solution compile time: " << gpuGeneralCompileTime.count()
-            << std::endl
-            << "GPU general solution with reordered memory speedup over classic: "
-            << ((double)classicTime.count()) / (double)gpuFlippedGeneralTime.count() << std::endl
-            << "GPU general solution with reordered memory compile time: " << gpuFlippedGeneralCompileTime.count()
-            << std::endl
+            << gpuJitTime.count() << "," 
+            << gpuFlippedJitTime.count() << ","
+            << gpuGeneralTime.count() << ","
+            << gpuFlippedGeneralTime.count() 
+#endif
+#ifdef USE_LLVM
+            << ", CPU JIT"
 #endif
             << std::endl;
   return 0;
