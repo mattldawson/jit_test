@@ -35,24 +35,26 @@ add_compile_definitions(NUM_RXNS=${NREACTIONS} NUM_SPEC=${NSPECIES} NUM_REPEAT=$
 # LLVM flags
 
 if(ENABLE_LLVM)
-  # set(LLVM_CMD "llvm-config --cxxflags --ldflags --system-libs --libs support core orcjit native irreader | tr '\\n' ' '")
-  # execute_process(COMMAND bash "-c" ${LLVM_CMD}
-  #                 OUTPUT_VARIABLE llvm_libs)
-  # separate_arguments(llvm_libs)
-
   find_package(LLVM REQUIRED CONFIG
     PATHS
       /opt/homebrew/Cellar/llvm@13/13.0.1_2/
       /glade/work/benkirk/my_spack_playground/deploy/view/CentOS-compilers/llvm/15.0.4/lib/cmake/llvm/
   )
-  message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-  message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+  if(LLVM_FOUND)
+    message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+    message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
-  include_directories(${LLVM_INCLUDE_DIRS})
-  separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
-  add_definitions(${LLVM_DEFINITIONS_LIST})
+    include_directories(${LLVM_INCLUDE_DIRS})
+    separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
+    add_definitions(${LLVM_DEFINITIONS_LIST})
 
-  llvm_map_components_to_libnames(llvm_libs support core orcjit native irreader)
+    llvm_map_components_to_libnames(llvm_libs support core orcjit native irreader)
+  else()
+    set(LLVM_CMD "llvm-config --cxxflags --ldflags --system-libs --libs support core orcjit native irreader | tr '\\n' ' '")
+    execute_process(COMMAND bash "-c" ${LLVM_CMD}
+                    OUTPUT_VARIABLE llvm_libs)
+    separate_arguments(llvm_libs)
+  endif()
 endif()
 
 ################################################################################
