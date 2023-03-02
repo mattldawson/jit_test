@@ -129,7 +129,7 @@ int main() {
 
   start = std::chrono::high_resolution_clock::now();
   for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
-    cudaGeneralDeriv.Solve(rateConst, state, fGPUGeneral, classicDeriv.numCell);
+    cudaGeneralDeriv.Solve(rateConst, state, fGPUGeneral, classicDeriv);
   stop = std::chrono::high_resolution_clock::now();
   auto gpuGeneralTime =
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
@@ -189,7 +189,7 @@ int main() {
       for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec)
         flippedState[i_cell+classicDeriv.numCell*i_spec] = state[i_cell*classicDeriv.numSpec+i_spec];
     }
-    cudaFlippedGeneralDeriv.Solve(flippedRateConst, flippedState, flippedDeriv, classicDeriv.numCell);
+    cudaFlippedGeneralDeriv.Solve(flippedRateConst, flippedState, flippedDeriv, classicDeriv);
     for (int i_cell = 0; i_cell < classicDeriv.numCell; ++i_cell) {
       for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec)
         fFlippedGPUGeneral[i_cell*classicDeriv.numSpec+i_spec] = flippedDeriv[i_cell+classicDeriv.numCell*i_spec];
