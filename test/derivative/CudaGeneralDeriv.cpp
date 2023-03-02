@@ -86,7 +86,7 @@ void solve(double *rateConst, double *state, double *deriv,                 \n\
          for (i_react = 0; i_react < numReact[i_rxn]; ++i_react)            \n\
              deriv[reactId[i_rxn*maxreact+i_react]+numspec*tid] -= rate;    \n\
          for (i_prod = 0; i_prod < numProd[i_rxn]; ++i_prod)                \n\
-             deriv[prodId[i_rxn*maxprod+i_prod]+numcell*tid] += rate;       \n\
+             deriv[prodId[i_rxn*maxprod+i_prod]+numspec*tid] += rate;       \n\
      }                                                                      \n\
   }                                                                         \n\
 }                                                                           \n";
