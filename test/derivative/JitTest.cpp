@@ -199,6 +199,10 @@ int main() {
   auto gpuFlippedGeneralTime =
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
+  cudaJitDeriv.OutputCuda("jit.cu");
+  cudaFlippedJitDeriv.OutputCuda("jit_flipped.cu");
+  cudaGeneralDeriv.OutputCuda("general.cu");
+  cudaFlippedGeneralDeriv.OutputCuda("general_flipped.cu");
 #endif
 
   for (int i_cell = 0; i_cell < classicDeriv.numCell; ++i_cell) {

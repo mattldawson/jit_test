@@ -1,5 +1,7 @@
 #include <string>
 #include <chrono>
+#include <iostream>
+#include <fstream>
 #include "CudaGeneralDeriv.h"
 #include "ClassicDeriv.h"
 
@@ -8,6 +10,7 @@ namespace jit_test {
 std::string GenerateGeneralCudaKernel(ClassicDeriv cd, bool flipped);
 
 CudaGeneralDeriv::CudaGeneralDeriv(ClassicDeriv cd, bool flipped) :
+  classicDeriv(cd), flipped(flipped),
   kernelJit(GenerateGeneralCudaKernel(cd, flipped).c_str(), flipped ? "solve_general_flipped" : "solve_general" )
 { };
 
@@ -58,6 +61,13 @@ void CudaGeneralDeriv::Solve(double *rateConst, double *state, double *deriv, Cl
   CUDA_SAFE_CALL( cuMemFree(dreactId) );
   CUDA_SAFE_CALL( cuMemFree(dprodId) );
 
+}
+
+void CudaGeneralDeriv::OutputCuda(const char *fileName) {
+  std::ofstream outFile;
+  outFile.open(fileName);
+  outFile << GenerateGeneralCudaKernel(this->classicDeriv, this->flipped);
+  outFile.close();
 }
 
 std::string GenerateGeneralCudaKernel(ClassicDeriv cd, bool flipped) {

@@ -1,5 +1,7 @@
 #include <string>
 #include <chrono>
+#include <iostream>
+#include <fstream>
 #include "CudaJitDeriv.h"
 #include "ClassicDeriv.h"
 
@@ -8,6 +10,7 @@ namespace jit_test {
 std::string GenerateCudaKernel(ClassicDeriv cd, bool flipped);
 
 CudaJitDeriv::CudaJitDeriv(ClassicDeriv cd, bool flipped) :
+  classicDeriv(cd), flipped(flipped),
   kernelJit(GenerateCudaKernel(cd, flipped).c_str(), flipped ? "solve_jit_flipped" : "solve_jit" )
 { };
 
@@ -36,6 +39,13 @@ void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv, int nu
   CUDA_SAFE_CALL( cuMemFree(drateConst) );
   CUDA_SAFE_CALL( cuMemFree(dstate) );
   CUDA_SAFE_CALL( cuMemFree(dderiv) );
+}
+
+void CudaJitDeriv::OutputCuda(const char *fileName) {
+  std::ofstream outFile;
+  outFile.open(fileName);
+  outFile << GenerateCudaKernel(this->classicDeriv, this->flipped);
+  outFile.close();
 }
 
 std::string GenerateCudaKernel(ClassicDeriv cd, bool flipped) {
