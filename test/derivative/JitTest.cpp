@@ -203,7 +203,7 @@ int main() {
 
   for (int i_cell = 0; i_cell < classicDeriv.numCell; ++i_cell) {
     for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec) {
-#if 0
+#if 1
       std::cout << std::endl
                 << "fClassic[" << i_spec << "] = " << fClassic[i_spec]
 #ifdef USE_LLVM
@@ -212,7 +212,8 @@ int main() {
                 << "  fPreprocessed[" << i_spec << "] = " << fPreprocessed[i_spec]
 #ifdef USE_GPU
                 << "  fGPUJit[" << i_spec << "] = " << fGPUJit[i_spec]
-                << "  diff[" << i_spec << "] = " << (fGPUJit[i_spec] - fClassic[i_spec])
+                << "  fGPUGeneral[" << i_spec << "] = " << fGPUGeneral[i_spec]
+                << "  diff[" << i_spec << "] = " << (fGPUGeneral[i_spec] - fClassic[i_spec])
 #endif
                 << std::endl;
 #endif
