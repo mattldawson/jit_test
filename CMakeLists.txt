@@ -23,7 +23,7 @@ if(ENABLE_LLVM)
 endif()
 
 set(CUDA_THREADS "128" CACHE STRING "CUDA threads")
-set(CUDA_BLOCKS "32" CACHE STRING "CUDA blocks")
+set(CUDA_BLOCKS "32" CACHE STRING "CUDA blocks (should be NCELLS / CUDA_THREADS) and round up")
 set(NCELLS "100" CACHE STRING "Number of model grid cells")
 set(NREACTIONS "500" CACHE STRING "Number of reactions to simulate")
 set(NSPECIES "200" CACHE STRING "Number of species to simulate")
