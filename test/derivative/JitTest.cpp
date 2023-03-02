@@ -118,6 +118,17 @@ int main() {
   auto gpuJitTime =
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
+  // GPU Jit Derivative
+  double *fGPUJitCompiled;
+  fGPUJitCompiled = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
+
+  start = std::chrono::high_resolution_clock::now();
+  for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
+    cudaJitDeriv.SolveCompiled(rateConst, state, fGPUJitCompiled, classicDeriv.numCell);
+  stop = std::chrono::high_resolution_clock::now();
+  auto gpuJitCompiledTime =
+      std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
   // General GPU derivative
   start = std::chrono::high_resolution_clock::now();
   CudaGeneralDeriv cudaGeneralDeriv(classicDeriv, false);
@@ -169,6 +180,29 @@ int main() {
   }
   stop = std::chrono::high_resolution_clock::now();
   auto gpuFlippedJitTime =
+      std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
+  // Reordered memory GPU JIT derivative
+  double *fFlippedGPUJitCompiled;
+  fFlippedGPUJitCompiled = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
+
+  start = std::chrono::high_resolution_clock::now();
+  for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep) {
+    // Reorder arrays
+    for (int i_cell = 0; i_cell < classicDeriv.numCell; ++i_cell) {
+      for (int i_rxn = 0; i_rxn < classicDeriv.numRxns; ++i_rxn)
+        flippedRateConst[i_cell+classicDeriv.numCell*i_rxn] = rateConst[i_cell*classicDeriv.numRxns+i_rxn];
+      for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec)
+        flippedState[i_cell+classicDeriv.numCell*i_spec] = state[i_cell*classicDeriv.numSpec+i_spec];
+    }
+    cudaFlippedJitDeriv.SolveCompiled(flippedRateConst, flippedState, flippedDeriv, classicDeriv.numCell);
+    for (int i_cell = 0; i_cell < classicDeriv.numCell; ++i_cell) {
+      for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec)
+        fFlippedGPUJitCompiled[i_cell*classicDeriv.numSpec+i_spec] = flippedDeriv[i_cell+classicDeriv.numCell*i_spec];
+    }
+  }
+  stop = std::chrono::high_resolution_clock::now();
+  auto gpuFlippedJitCompiledTime =
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
   // Reordered memory General GPU derivative
@@ -229,7 +263,9 @@ int main() {
 #endif
 #ifdef USE_GPU
       assert(close_enough(fClassic[i], fGPUJit[i]));
+      assert(close_enough(fClassic[i], fGPUJitCompiled[i]));
       assert(close_enough(fClassic[i], fFlippedGPUJit[i]));
+      assert(close_enough(fClassic[i], fFlippedGPUJitCompiled[i]));
       assert(close_enough(fClassic[i], fGPUGeneral[i]));
       assert(close_enough(fClassic[i], fFlippedGPUGeneral[i]));
 #endif
@@ -243,7 +279,9 @@ int main() {
 #endif
 #ifdef USE_GPU
             << "; GPU Jit: " << gpuJitTime.count()
+            << "; GPU Jit (from source code): " << gpuJitCompiledTime.count()
             << "; GPU reordered memory Jit: " << gpuFlippedJitTime.count()
+            << "; GPU reordered memory Jit (from source code): " << gpuFlippedJitCompiledTime.count()
             << "; GPU General: " << gpuGeneralTime.count()
             << "; GPU reordered memory general: " << gpuFlippedGeneralTime.count()
 #endif

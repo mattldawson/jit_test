@@ -10,6 +10,7 @@ class CudaJitDeriv {
 public:
   CudaJitDeriv(ClassicDeriv cd, bool flipped);
   void Solve(double *rateConst, double *state, double *deriv, int numcell);
+  void SolveCompiled(double *rateConst, double *state, double *deriv, int numcell);
   void OutputCuda(const char *fileName);
 private:
   ClassicDeriv classicDeriv;

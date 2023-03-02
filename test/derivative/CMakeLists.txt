@@ -17,7 +17,10 @@ if(ENABLE_LLVM)
 endif()
 
 if(ENABLE_GPU)
-  set(CUDA_SRC CudaJitDeriv.cpp CudaGeneralDeriv.cpp)
+  set(CUDA_SRC CudaJitDeriv.cu CudaGeneralDeriv.cpp)
+  #if(ENABLE_COMPILED)
+    #    set(COMPILE_SRC jit.cu jit_flipped.cu general.cu general_flipped.cu)
+    #endif()
 endif()
 
 target_sources(derivative_test
@@ -26,8 +29,12 @@ target_sources(derivative_test
     ClassicDeriv.cpp
     ${LLVM_SRC}
     ${CUDA_SRC}
+    ${COMPILE_SRC}
     JitTest.cpp
 )
+
+set_property(TARGET derivative_test
+             PROPERTY CUDA_SEPARABLE_COMPILATION ON)
 
 target_link_libraries(derivative_test ${llvm_libs} ${NVIDIA_LIBS})
 

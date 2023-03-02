@@ -4,6 +4,10 @@
 #include <fstream>
 #include "CudaJitDeriv.h"
 #include "ClassicDeriv.h"
+#ifdef USE_COMPILED
+#include "jit.cu"
+#include "jit_flipped.cu"
+#endif
 
 namespace jit_test {
 
@@ -39,6 +43,36 @@ void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv, int nu
   CUDA_SAFE_CALL( cuMemFree(drateConst) );
   CUDA_SAFE_CALL( cuMemFree(dstate) );
   CUDA_SAFE_CALL( cuMemFree(dderiv) );
+}
+
+void CudaJitDeriv::SolveCompiled(double *rateConst, double *state, double *deriv, int numcell) {
+  double *drateConst, *dstate, *dderiv;
+
+  for (int i = 0; i < NUM_SPEC * NUM_CELLS; ++i) deriv[i] = 0.0;
+
+  // Allocate GPU memory
+  cudaMalloc(&drateConst, NUM_RXNS * NUM_CELLS * sizeof(double));
+  cudaMalloc(&dstate, NUM_SPEC * NUM_CELLS * sizeof(double));
+  cudaMalloc(&dderiv, NUM_SPEC * NUM_CELLS * sizeof(double));
+
+  // copy to GPU
+  cudaMemcpy(drateConst, rateConst, NUM_RXNS * NUM_CELLS * sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy(dstate, state, NUM_SPEC * NUM_CELLS * sizeof(double), cudaMemcpyHostToDevice);
+
+#ifdef USE_COMPILED
+  if (this->flipped) {
+    solve_jit_flipped<<<CUDA_BLOCKS,CUDA_THREADS>>>(drateConst, dstate, dderiv, numcell);
+  } else {
+    solve_jit<<<CUDA_BLOCKS,CUDA_THREADS>>>(drateConst, dstate, dderiv, numcell);
+  }
+#endif
+
+  // Get the result
+  cudaMemcpy(deriv, dderiv, NUM_SPEC * NUM_CELLS * sizeof(double), cudaMemcpyDeviceToHost);
+
+  cudaFree(drateConst);
+  cudaFree(dstate);
+  cudaFree(dderiv);
 }
 
 void CudaJitDeriv::OutputCuda(const char *fileName) {
