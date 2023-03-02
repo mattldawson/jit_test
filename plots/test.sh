@@ -24,8 +24,6 @@
 #    done
 #done
 
-> results.txt
-mkdir data
 cd ../build
 for ncell in 100 1000 10000 100000 1000000
 do
@@ -38,5 +36,5 @@ do
             -DCMAKE_BUILD_TYPE=Release \
             ..
     make
-    ./test/derivative/derivative_test >> ../plots/results.txt
+    ./test/derivative/derivative_test >> ../plots/results_${ncell}.csv
 done
