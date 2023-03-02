@@ -203,13 +203,6 @@ int main() {
 
   for (int i_cell = 0; i_cell < classicDeriv.numCell; ++i_cell) {
     for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec) {
-      int i = i_cell * classicDeriv.numSpec + i_spec;
-      assert(close_enough(fClassic[i], fPreprocessed[i]));
-#ifdef USE_LLVM
-      assert(fClassic[i] == fJit[i]);
-#endif
-#ifdef USE_GPU
-      if (!close_enough(fClassic[i], fGPUGeneral[i])){
 #if 1
       std::cout << std::endl
                 << "cell: " << i_cell << " "
@@ -225,11 +218,19 @@ int main() {
 #endif
                 << std::endl;
 #endif
+      int i = i_cell * classicDeriv.numSpec + i_spec;
+      assert(close_enough(fClassic[i], fPreprocessed[i]));
+#ifdef USE_LLVM
+      assert(fClassic[i] == fJit[i]);
+#endif
+#ifdef USE_GPU
+      if (!close_enough(fClassic[i], fGPUGeneral[i])){
+
       }
-      // assert(close_enough(fClassic[i], fGPUJit[i]));
-      // assert(close_enough(fClassic[i], fFlippedGPUJit[i]));
-      // assert(close_enough(fClassic[i], fGPUGeneral[i]));
-      // assert(close_enough(fClassic[i], fFlippedGPUGeneral[i]));
+      assert(close_enough(fClassic[i], fGPUJit[i]));
+      assert(close_enough(fClassic[i], fFlippedGPUJit[i]));
+      assert(close_enough(fClassic[i], fGPUGeneral[i]));
+      assert(close_enough(fClassic[i], fFlippedGPUGeneral[i]));
 #endif
     }
   }
