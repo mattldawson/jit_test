@@ -22,8 +22,8 @@ namespace jit_test {
 ClassicDeriv::ClassicDeriv() {
   srand(1856);
   for (int i_rxn = 0; i_rxn < this->numRxns; ++i_rxn) {
-    this->numReact[i_rxn] = rand() % 2 + 2;
-    this->numProd[i_rxn] = rand() % 10 + 1;
+    this->numReact[i_rxn] = rand() % (MAX_REACT - 1) + 2;
+    this->numProd[i_rxn] = rand() % MAX_PROD + 1;
     for (int i_react = 0; i_react < this->numReact[i_rxn]; ++i_react)
       this->reactId[i_rxn][i_react] = rand() % this->numSpec;
     for (int i_prod = 0; i_prod < this->numProd[i_rxn]; ++i_prod)

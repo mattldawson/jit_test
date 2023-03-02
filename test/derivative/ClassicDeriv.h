@@ -24,6 +24,9 @@
 #ifndef NUM_CELLS
 #define NUM_CELLS 10
 #endif
+#define MAX_REACT 3
+#define MAX_PROD 10
+
 
 namespace jit_test {
 
@@ -38,8 +41,8 @@ public:
   int numCell = NUM_CELLS;
   int numReact[NUM_RXNS];
   int numProd[NUM_RXNS];
-  int reactId[NUM_RXNS][3];
-  int prodId[NUM_RXNS][10];
+  int reactId[NUM_RXNS][MAX_REACT];
+  int prodId[NUM_RXNS][MAX_PROD];
 };
 }
 #endif // COM_CLASSICDERIV_H

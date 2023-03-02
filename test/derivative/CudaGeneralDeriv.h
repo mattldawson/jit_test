@@ -7,10 +7,10 @@ namespace jit_test {
 
 class ClassicDeriv;
 
-class CudaJitDeriv {
+class CudaGeneralDeriv {
 public:
-  CudaJitDeriv(ClassicDeriv cd, bool flipped);
-  void Solve(double *rateConst, double *state, double *deriv, int numcell);
+  CudaGeneralDeriv(ClassicDeriv cd, bool flipped);
+  void Solve(double *rateConst, double *state, double *deriv, ClassicDeriv cd);
 
 private:
   CudaJIT kernelJit;

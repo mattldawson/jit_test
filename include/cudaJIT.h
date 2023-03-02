@@ -1,4 +1,6 @@
 // NVRTC Compiler for JITing GPU functions
+#pragma once
+
 #include <cuda.h>
 #include <nvrtc.h>
 #include <cstdio>

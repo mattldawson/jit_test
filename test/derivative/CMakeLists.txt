@@ -17,7 +17,7 @@ if(ENABLE_LLVM)
 endif()
 
 if(ENABLE_GPU)
-  set(CUDA_SRC CudaJitDeriv.cpp)
+  set(CUDA_SRC CudaJitDeriv.cpp CudaGeneralDeriv.cpp)
 endif()
 
 target_sources(derivative_test
