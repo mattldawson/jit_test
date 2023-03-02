@@ -7,6 +7,7 @@ RUN dnf -y update \
          gdb \
          gcc-fortran \
          make \
+         zlib-devel \
          llvm-devel \
          cmake \
          valgrind \
