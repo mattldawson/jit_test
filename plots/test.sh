@@ -32,9 +32,9 @@ do
     echo "reactions:" ${nreact} "; species:" ${nspecies} >> results.txt
     cmake -DCMAKE_C_FLAGS=-ftime-trace \
             -DCMAKE_CXX_FLAGS=-ftime-trace \
-            -DNREACTIONS=5000 \
-            -DNSPECIES=2000 \
-            -DNCELL=${ncell} \
+            -DNREACTIONS=500 \
+            -DNSPECIES=200 \
+            -DNCELLS=${ncell} \
             -DCMAKE_BUILD_TYPE=Release \
             ..
     make
