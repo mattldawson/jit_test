@@ -205,6 +205,7 @@ int main() {
     for (int i_spec = 0; i_spec < classicDeriv.numSpec; ++i_spec) {
 #if 1
       std::cout << std::endl
+                << "cell: " << i_cell << " "
                 << "fClassic[" << i_spec << "] = " << fClassic[i_spec]
 #ifdef USE_LLVM
                 << "  fJit[" << i_spec << "] = " << fJit[i_spec]
