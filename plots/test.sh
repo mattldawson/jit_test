@@ -25,7 +25,7 @@
 #done
 
 cd ../build
-for ncell in 100 1000 10000 100000 1000000
+for ncell in 1000 10000 100000 1000000
 do
     echo "reactions:" ${nreact} "; species:" ${nspecies} >> results.txt
     cmake -DCMAKE_C_FLAGS=-ftime-trace \
