@@ -193,7 +193,7 @@ int main() {
   auto gpuFlippedJitTime =
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
-  // Reordered memory GPU JIT derivative
+  // Reordered memory GPU JIT derivative (from source)
   double *fFlippedGPUJitCompiled;
   fFlippedGPUJitCompiled = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
 
