@@ -11,7 +11,7 @@ CudaJitDeriv::CudaJitDeriv(ClassicDeriv cd, bool flipped) :
   kernelJit(GenerateCudaKernel(cd, flipped).c_str(), flipped ? "solve_jit_flipped" : "solve_jit" )
 { };
 
-void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv, int numcell) {
+std::chrono::duration<long, std::nano> CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv, int numcell) {
   CUdeviceptr drateConst, dstate, dderiv;
 
   for (int i = 0; i < NUM_SPEC * NUM_CELLS; ++i) deriv[i] = 0.0;
@@ -28,7 +28,11 @@ void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv, int nu
   // Call the function
   void *args[] = { &drateConst, &dstate, &dderiv, &numcell };
 
+  auto start = std::chrono::high_resolution_clock::now();
   kernelJit.Run(args);
+  auto stop = std::chrono::high_resolution_clock::now();
+
+  auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
 
   // Get the result
   CUDA_SAFE_CALL( cuMemcpyDtoH(deriv, dderiv, NUM_SPEC * NUM_CELLS * sizeof(double)) );
@@ -36,6 +40,8 @@ void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv, int nu
   CUDA_SAFE_CALL( cuMemFree(drateConst) );
   CUDA_SAFE_CALL( cuMemFree(dstate) );
   CUDA_SAFE_CALL( cuMemFree(dderiv) );
+
+  return time;
 }
 
 std::string GenerateCudaKernel(ClassicDeriv cd, bool flipped) {

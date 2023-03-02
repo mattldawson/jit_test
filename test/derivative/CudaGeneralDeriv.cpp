@@ -11,7 +11,7 @@ CudaGeneralDeriv::CudaGeneralDeriv(ClassicDeriv cd, bool flipped) :
   kernelJit(GenerateGeneralCudaKernel(cd, flipped).c_str(), flipped ? "solve_general_flipped" : "solve_general" )
 { };
 
-void CudaGeneralDeriv::Solve(double *rateConst, double *state, double *deriv, ClassicDeriv cd) {
+std::chrono::duration<long, std::nano> CudaGeneralDeriv::Solve(double *rateConst, double *state, double *deriv, ClassicDeriv cd) {
   CUdeviceptr drateConst, dstate, dderiv, dnumReact, dnumProd, dreactId, dprodId;
 
   for (int i = 0; i < NUM_SPEC * NUM_CELLS; ++i) deriv[i] = 0.0;
@@ -45,7 +45,11 @@ void CudaGeneralDeriv::Solve(double *rateConst, double *state, double *deriv, Cl
   void *args[] = { &drateConst, &dstate, &dderiv, &dnumReact, &dnumProd, &dreactId,
                    &dprodId, &numcell, &numrxn, &numspec, &maxreact, &maxprod };
 
+  auto start = std::chrono::high_resolution_clock::now();
   kernelJit.Run(args);
+  auto stop = std::chrono::high_resolution_clock::now();
+
+  auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
 
   // Get the result
   CUDA_SAFE_CALL( cuMemcpyDtoH(deriv, dderiv, NUM_SPEC * NUM_CELLS * sizeof(double)) );
@@ -58,6 +62,7 @@ void CudaGeneralDeriv::Solve(double *rateConst, double *state, double *deriv, Cl
   CUDA_SAFE_CALL( cuMemFree(dreactId) );
   CUDA_SAFE_CALL( cuMemFree(dprodId) );
 
+  return time;
 }
 
 std::string GenerateGeneralCudaKernel(ClassicDeriv cd, bool flipped) {
