@@ -8,7 +8,7 @@ namespace jit_test {
 std::string GenerateGeneralCudaKernel(ClassicDeriv cd, bool flipped);
 
 CudaGeneralDeriv::CudaGeneralDeriv(ClassicDeriv cd, bool flipped) :
-  kernelJit(GenerateGeneralCudaKernel(cd, flipped).c_str(), "solve" )
+  kernelJit(GenerateGeneralCudaKernel(cd, flipped).c_str(), flipped ? "solve_general_flipped" : "solve_general" )
 { };
 
 void CudaGeneralDeriv::Solve(double *rateConst, double *state, double *deriv, ClassicDeriv cd) {
@@ -66,7 +66,7 @@ std::string GenerateGeneralCudaKernel(ClassicDeriv cd, bool flipped) {
   if (!flipped) {
     kernel = "\n\
 extern \"C\" __global__                                                     \n\
-void solve(double *rateConst, double *state, double *deriv,                 \n\
+void solve_general(double *rateConst, double *state, double *deriv,                 \n\
            int *numReact, int *numProd, int *reactId, int *prodId,          \n\
            int numcell, int numrxn, int numspec, int maxreact, int maxprod) \n\
                                                                             \n\
@@ -93,7 +93,7 @@ void solve(double *rateConst, double *state, double *deriv,                 \n\
   } else {
     kernel = "\n\
 extern \"C\" __global__                                                     \n\
-void solve(double *rateConst, double *state, double *deriv,                 \n\
+void solve_general_flipped(double *rateConst, double *state, double *deriv,                 \n\
            int *numReact, int *numProd, int *reactId, int *prodId,          \n\
            int numcell, int numrxn, int numspec, int maxreact, int maxprod) \n\
                                                                             \n\

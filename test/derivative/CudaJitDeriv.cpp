@@ -8,7 +8,7 @@ namespace jit_test {
 std::string GenerateCudaKernel(ClassicDeriv cd, bool flipped);
 
 CudaJitDeriv::CudaJitDeriv(ClassicDeriv cd, bool flipped) :
-  kernelJit(GenerateCudaKernel(cd, flipped).c_str(), "solve" )
+  kernelJit(GenerateCudaKernel(cd, flipped).c_str(), flipped ? "solve_jit_flipped" : "solve_jit" )
 { };
 
 void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv, int numcell) {
@@ -44,7 +44,7 @@ std::string GenerateCudaKernel(ClassicDeriv cd, bool flipped) {
   if (!flipped) {
     kernel = "\n\
 extern \"C\" __global__                                                     \n\
-void solve(double *rateConst, double *state, double *deriv, int numcell)    \n\
+void solve_jit(double *rateConst, double *state, double *deriv, int numcell)    \n\
 {                                                                           \n\
   size_t tid;                                                               \n\
   double rate;                                                              \n\
@@ -70,7 +70,7 @@ void solve(double *rateConst, double *state, double *deriv, int numcell)    \n\
   } else {
     kernel = "\n\
 extern \"C\" __global__                                                     \n\
-void solve(double *rateConst, double *state, double *deriv, int numcell)    \n\
+void solve_jit_flipped(double *rateConst, double *state, double *deriv, int numcell)    \n\
 {                                                                           \n\
   size_t tid;                                                               \n\
   double rate;                                                              \n\
