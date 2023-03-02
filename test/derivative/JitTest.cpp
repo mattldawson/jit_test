@@ -220,8 +220,7 @@ int main() {
     }
   }
 
-  std::cout << "Cells, Reactions, Species"
-            << "Classic, Preprocessed"
+  std::cout << "Cells, Reactions, Species, Classic, Preprocessed"
 #ifdef USE_GPU
             << ", GPU JIT, GPU reordered memory JIT, GPU General, GPU reordered memory general"
 #endif
@@ -230,11 +229,13 @@ int main() {
 #endif
             << std::endl;
 
-  std::cout << NUM_CELLS << "," << NUM_RXNS << ", " << NUM_SPEC
+  std::cout << NUM_CELLS << "," 
+            << NUM_RXNS << ", " 
+            << NUM_SPEC << ", "
             << classicTime.count() << "," 
-            << preprocessedTime.count() << "," 
+            << preprocessedTime.count()
 #ifdef USE_GPU
-            << gpuJitTime.count() << "," 
+            << ", " << gpuJitTime.count() << "," 
             << gpuFlippedJitTime.count() << ","
             << gpuGeneralTime.count() << ","
             << gpuFlippedGeneralTime.count() 
