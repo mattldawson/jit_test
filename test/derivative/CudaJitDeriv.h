@@ -9,7 +9,7 @@ class ClassicDeriv;
 
 class CudaJitDeriv {
 public:
-  CudaJitDeriv(ClassicDeriv cd);
+  CudaJitDeriv(ClassicDeriv cd, bool flipped);
   void Solve(double *rateConst, double *state, double *deriv, int numcell);
 
 private:

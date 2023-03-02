@@ -5,10 +5,10 @@
 
 namespace jit_test {
 
-std::string GenerateCudaKernel(ClassicDeriv cd);
+std::string GenerateCudaKernel(ClassicDeriv cd, bool flipped);
 
-CudaJitDeriv::CudaJitDeriv(ClassicDeriv cd) :
-  kernelJit(GenerateCudaKernel(cd).c_str(), "solve" )
+CudaJitDeriv::CudaJitDeriv(ClassicDeriv cd, bool flipped) :
+  kernelJit(GenerateCudaKernel(cd, flipped).c_str(), "solve" )
 { };
 
 void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv, int numcell) {
@@ -38,9 +38,11 @@ void CudaJitDeriv::Solve(double *rateConst, double *state, double *deriv, int nu
   CUDA_SAFE_CALL( cuMemFree(dderiv) );
 }
 
-std::string GenerateCudaKernel(ClassicDeriv cd) {
+std::string GenerateCudaKernel(ClassicDeriv cd, bool flipped) {
 
-  std::string kernel = "\n\
+  std::string kernel;
+  if (!flipped) {
+    kernel = "\n\
 extern \"C\" __global__                                                     \n\
 void solve(double *rateConst, double *state, double *deriv, int numcell)    \n\
 {                                                                           \n\
@@ -65,9 +67,36 @@ void solve(double *rateConst, double *state, double *deriv, int numcell)    \n\
   kernel += "\n\
   }                                                                         \n\
 }                                                                           \n";
+  } else {
+    kernel = "\n\
+extern \"C\" __global__                                                     \n\
+void solve(double *rateConst, double *state, double *deriv, int numcell)    \n\
+{                                                                           \n\
+  size_t tid;                                                               \n\
+  double rate;                                                              \n\
+                                                                            \n\
+  tid = blockIdx.x * blockDim.x + threadIdx.x;                              \n\
+  if (tid < numcell) {                                                      \n";
 
+  for (int i_rxn = 0; i_rxn < cd.numRxns; ++i_rxn) {
+    kernel += "    rate = rateConst[tid+" + std::to_string(cd.numCell) + "*" + std::to_string(i_rxn) +"];\n";
+
+    for (int i_react = 0; i_react < cd.numReact[i_rxn]; ++i_react)
+      kernel += "    rate *= state[tid+"+ std::to_string(cd.numCell) + "*" + std::to_string(cd.reactId[i_rxn][i_react]) + "];\n";
+
+    for (int i_react = 0; i_react < cd.numReact[i_rxn]; ++i_react)
+      kernel += "    deriv[tid+"+ std::to_string(cd.numCell) + "*" + std::to_string(cd.reactId[i_rxn][i_react]) + "] -= rate;\n";
+
+    for (int i_prod = 0; i_prod < cd.numProd[i_rxn]; ++i_prod)
+      kernel += "    deriv[tid+"+ std::to_string(cd.numCell) + "*" + std::to_string(cd.prodId[i_rxn][i_prod]) + "] += rate;\n";
+  }
+  kernel += "\n\
+  }                                                                         \n\
+}                                                                           \n";
+  }
   return kernel;
 }
+
 
 } // namespace jit_test
 
