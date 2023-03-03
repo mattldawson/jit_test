@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.21)
-project(JIT_TEST LANGUAGES CXX C Fortran CUDA)
-set (CMAKE_CXX_STANDARD 11)
+project(JIT_TEST LANGUAGES CXX C Fortran)
 
 # connect fortran and c++
 # https://enccs.github.io/cmake-workshop/cxx-fortran/
 # https://github.com/ENCCS/cmake-workshop/blob/e47ac9b5197fc18db513e62ce3f1ac36357d3839/content/code/day-2/25_cxx-fortran/solution/src/math/CMakeLists.txt
 include(FortranCInterface)
+
+include(CMakeDependentOption)
 
 # if you are working with C++ and Fortran
 FortranCInterface_VERIFY(CXX)
@@ -13,17 +14,20 @@ FortranCInterface_VERIFY(CXX)
 ################################################################################
 # Options
 
-option(ENABLE_GPU "Enable support for GPUs" OFF)
-option(ENABLE_COMPILED "Include compiled GPU kernels in comparison" OFF)
+option(ENABLE_LLVM "Enable support for LLVM JIT" ON)
+if(ENABLE_LLVM)
+  set (CMAKE_CXX_STANDARD 17)
+  add_compile_definitions(USE_LLVM)
+endif()
+cmake_dependent_option(ENABLE_GPU "Enable support for GPUs" ON "NOT ENABLE_LLVM" OFF)
+cmake_dependent_option(ENABLE_COMPILED "Include compiled GPU kernels in comparison" OFF "ENABLE_CUDA" OFF)
 if(ENABLE_GPU)
+  set (CMAKE_CXX_STANDARD 11)
+  enable_language(CUDA)
   add_compile_definitions(USE_GPU)
 endif()
 if(ENABLE_COMPILED)
   add_compile_definitions(USE_COMPILED)
-endif()
-option(ENABLE_LLVM "Enable support for LLVM JIT" ON)
-if(ENABLE_LLVM)
-  add_compile_definitions(USE_LLVM)
 endif()
 
 set(CUDA_THREADS "128" CACHE STRING "CUDA threads")
