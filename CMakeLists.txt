@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
-project(JIT_TEST LANGUAGES CXX C Fortran)
-set (CMAKE_CXX_STANDARD 17)
+project(JIT_TEST LANGUAGES CXX C Fortran CUDA)
+set (CMAKE_CXX_STANDARD 11)
 
 # connect fortran and c++
 # https://enccs.github.io/cmake-workshop/cxx-fortran/
@@ -14,8 +14,12 @@ FortranCInterface_VERIFY(CXX)
 # Options
 
 option(ENABLE_GPU "Enable support for GPUs" OFF)
+option(ENABLE_COMPILED "Include compiled GPU kernels in comparison" OFF)
 if(ENABLE_GPU)
   add_compile_definitions(USE_GPU)
+endif()
+if(ENABLE_COMPILED)
+  add_compile_definitions(USE_COMPILED)
 endif()
 option(ENABLE_LLVM "Enable support for LLVM JIT" ON)
 if(ENABLE_LLVM)
@@ -23,11 +27,12 @@ if(ENABLE_LLVM)
 endif()
 
 set(CUDA_THREADS "128" CACHE STRING "CUDA threads")
-set(CUDA_BLOCKS "32" CACHE STRING "CUDA blocks")
 set(NCELLS "100" CACHE STRING "Number of model grid cells")
 set(NREACTIONS "500" CACHE STRING "Number of reactions to simulate")
 set(NSPECIES "200" CACHE STRING "Number of species to simulate")
-set(NITERATIONS "10000" CACHE STRING "Number of iterations to run the simulate")
+set(NITERATIONS "1" CACHE STRING "Number of iterations to run the simulate")
+math(EXPR CUDA_BLOCKS "${NCELLS} / ${CUDA_THREADS}")
+message(STATUS "Running with ${CUDA_BLOCKS} blocks")
 add_compile_definitions(NUM_RXNS=${NREACTIONS} NUM_SPEC=${NSPECIES} NUM_REPEAT=${NITERATIONS}
                         CUDA_THREADS=${CUDA_THREADS} CUDA_BLOCKS=${CUDA_BLOCKS} NUM_CELLS=${NCELLS})
 
