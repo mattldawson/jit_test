@@ -27,6 +27,7 @@ target_sources(derivative_test
     ${LLVM_SRC}
     ${CUDA_SRC}
     JitTest.cpp
+    deriv_openacc.h
 )
 
 set_property(TARGET derivative_test
