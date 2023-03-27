@@ -24,6 +24,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include "FortranPreproccessed.h"
+#include "deriv_openacc.h"
 
 #ifndef NUM_REPEAT
 #define NUM_REPEAT 10000
