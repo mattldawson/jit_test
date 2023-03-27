@@ -14,19 +14,19 @@ std::chrono::duration<long, std::nano> deriv_openacc(ClassicDeriv cd, double* ra
     auto start = std::chrono::high_resolution_clock::now();
 
     #ifdef _OPENACC
-    #pragma acc enter data copyin(rateConst[0:NUM_RXN * NUM_CELL], \
-                                  state[0:NUM_SPEC * NUM_CELL], \
-                                  hnumReact[0:NUM_RXN],hnumProd[0:NUM_RXN], \
-                                  hreactId[0:NUM_RXN][0:MAX_REACT], \
-                                  hprodId[0:NUM_RXN][0:MAX_PROD]) \
-                           create(deriv[0:NUM_SPEC * NUM_CELL])
+    #pragma acc enter data copyin(rateConst[0:cd.numRxns * cd.numCell], \
+                                  state[0:cd.numCell * cd.numCell], \
+                                  cd.numReact[0:cd.numRxns],cd.numProd[0:cd.numRxns], \
+                                  cd.reactId[0:cd.numRxns][0:MAX_REACT], \
+                                  cd.prodId[0:cd.numRxns][0:MAX_PROD]) \
+                           create(deriv[0:cd.numSpec * cd.numCell])
     #elif defined(_OPENMP)
-    #pragma omp target enter data map(to:rateConst[0:NUM_RXN * NUM_CELL], \
-                                         state[0:NUM_SPEC * NUM_CELL], \
-                                         hnumReact[0:NUM_RXN],hnumProd[0:NUM_RXN], \
-                                         hreactId[0:NUM_RXN][0:MAX_REACT], \
-                                         hprodId[0:NUM_RXN][0:MAX_PROD]) \
-                                  map(alloc:deriv[0:NUM_SPEC * NUM_CELL])
+    #pragma omp target enter data map(to:rateConst[0:cd.numRxns * cd.numCell], \
+                                  state[0:cd.numCell * cd.numCell], \
+                                  cd.numReact[0:cd.numRxns],cd.numProd[0:cd.numRxns], \
+                                  cd.reactId[0:cd.numRxns][0:MAX_REACT], \
+                                  cd.prodId[0:cd.numRxns][0:MAX_PROD] \
+                                  map(alloc:deriv[0:cd.numSpec * cd.numCell])
     #endif
 
     #ifdef _OPENACC
@@ -51,9 +51,9 @@ std::chrono::duration<long, std::nano> deriv_openacc(ClassicDeriv cd, double* ra
     }
 
     #ifdef _OPENACC
-    #pragma acc exit data copyout(deriv[0:NUM_SPEC * NUM_CELL])
+    #pragma acc exit data copyout(deriv[0:cd.numSpec * cd.numCell])
     #elif defined(_OPENMP)
-    #pragma omp target exit data map(from:deriv[0:NUM_SPEC * NUM_CELL])
+    #pragma omp target exit data map(from:deriv[0:cd.numSpec * cd.numCell])
     #endif
     auto stop = std::chrono::high_resolution_clock::now();
 
