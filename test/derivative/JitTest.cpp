@@ -308,7 +308,9 @@ int main() {
   double *hderiv_openacc;
   hderiv_openacc = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell,
                                     sizeof(double));
-  auto openacc_time =
+  std::chrono::duration<long, std::nano> openacc_time = std::chrono::nanoseconds::zero();
+  for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
+    openacc_time +=
       deriv_openacc(classicDeriv, rateConst, state, hderiv_openacc);
 #endif
 
@@ -350,6 +352,9 @@ int main() {
   std::cout
       << "Cells, Reactions, Species, Classic, Preprocessed"
 #ifdef USE_GPU
+#ifdef defined(_OPENACC) || defined(_OPENMP)
+      << ", OpenACC" <<
+#endif
       << ", GPU JIT, GPU reordered memory JIT, GPU General, GPU reordered "
          "memory general, GPU General (source), GPU reordered (source)"
 #endif
@@ -361,6 +366,9 @@ int main() {
   std::cout << NUM_CELLS << "," << NUM_RXNS << ", " << NUM_SPEC << ", "
             << classicTime.count() << "," << preprocessedTime.count()
 #ifdef USE_GPU
+#ifdef defined(_OPENACC) || defined(_OPENMP)
+            << ", " << openacc_time.count()
+#endif
             << ", " << gpuJitTime.count() << "," << gpuFlippedJitTime.count()
             << "," << gpuGeneralTime.count() << ","
             << gpuFlippedGeneralTime.count() << ","
