@@ -47,12 +47,12 @@ std::chrono::duration<long, std::nano> deriv_openacc(ClassicDeriv cd,
       deriv[i_cell * NUM_SPEC + i_spec] = 0.0;
     for (int i_rxn = 0; i_rxn < NUM_RXN; ++i_rxn) {
       rate = rateConst[i_cell * NUM_RXN + i_rxn];
-      for (int i_react = 0; i_react < hnumReact[i_rxn]; ++i_react)
-        rate *= state[i_cell * NUM_SPEC + hreactId[i_rxn][i_react]];
-      for (int i_react = 0; i_react < hnumReact[i_rxn]; ++i_react)
-        deriv[i_cell * NUM_SPEC + hreactId[i_rxn][i_react]] -= rate;
-      for (int i_prod = 0; i_prod < hnumProd[i_rxn]; ++i_prod)
-        deriv[i_cell * NUM_SPEC + hprodId[i_rxn][i_prod]] += rate;
+      for (int i_react = 0; i_react < cd.numReact[i_rxn]; ++i_react)
+        rate *= state[i_cell * NUM_SPEC + cd.reactId[i_rxn][i_react]];
+      for (int i_react = 0; i_react < cd.numReact[i_rxn]; ++i_react)
+        deriv[i_cell * NUM_SPEC + cd.reactId[i_rxn][i_react]] -= rate;
+      for (int i_prod = 0; i_prod < cd.numProd[i_rxn]; ++i_prod)
+        deriv[i_cell * NUM_SPEC + cd.prodId[i_rxn][i_prod]] += rate;
     }
   }
   auto stop = std::chrono::high_resolution_clock::now();
