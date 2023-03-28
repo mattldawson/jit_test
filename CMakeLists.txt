@@ -35,7 +35,7 @@ set(NCELLS "100" CACHE STRING "Number of model grid cells")
 set(NREACTIONS "500" CACHE STRING "Number of reactions to simulate")
 set(NSPECIES "200" CACHE STRING "Number of species to simulate")
 set(NITERATIONS "1" CACHE STRING "Number of iterations to run the simulate")
-math(EXPR CUDA_BLOCKS "$({NCELLS} + ${CUDA_THREADS} - 1) / ${CUDA_THREADS}")
+math(EXPR CUDA_BLOCKS "$(${NCELLS} + ${CUDA_THREADS} - 1) / ${CUDA_THREADS}")
 message(STATUS "Running with ${CUDA_BLOCKS} blocks")
 add_compile_definitions(NUM_RXNS=${NREACTIONS} NUM_SPEC=${NSPECIES} NUM_REPEAT=${NITERATIONS}
                         CUDA_THREADS=${CUDA_THREADS} CUDA_BLOCKS=${CUDA_BLOCKS} NUM_CELLS=${NCELLS})
