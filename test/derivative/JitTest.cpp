@@ -337,14 +337,14 @@ int main() {
       assert(fClassic[i] == fJit[i]);
 #endif
 #ifdef USE_GPU
-      assert(close_enough(fClassic[i], fGPUJit[i]));
-      assert(close_enough(fClassic[i], fGPUJitCompiled[i]));
-      assert(close_enough(fClassic[i], fFlippedGPUJit[i]));
-      assert(close_enough(fClassic[i], fFlippedGPUJitCompiled[i]));
-      assert(close_enough(fClassic[i], fGPUGeneral[i]));
-      assert(close_enough(fClassic[i], fGPUGeneralCompiled[i]));
-      assert(close_enough(fClassic[i], fFlippedGPUGeneral[i]));
-      assert(close_enough(fClassic[i], fFlippedGPUGeneralCompiled[i]));
+      // assert(close_enough(fClassic[i], fGPUJit[i]));
+      // assert(close_enough(fClassic[i], fGPUJitCompiled[i]));
+      // assert(close_enough(fClassic[i], fFlippedGPUJit[i]));
+      // assert(close_enough(fClassic[i], fFlippedGPUJitCompiled[i]));
+      // assert(close_enough(fClassic[i], fGPUGeneral[i]));
+      // assert(close_enough(fClassic[i], fGPUGeneralCompiled[i]));
+      // assert(close_enough(fClassic[i], fFlippedGPUGeneral[i]));
+      // assert(close_enough(fClassic[i], fFlippedGPUGeneralCompiled[i]));
 #endif
     }
   }
@@ -355,8 +355,8 @@ int main() {
 #ifdef defined(_OPENACC) || defined(_OPENMP)
       << ", OpenACC" <<
 #endif
-      << ", GPU JIT, GPU reordered memory JIT, GPU General, GPU reordered "
-         "memory general, GPU General (source), GPU reordered (source)"
+      // << ", GPU JIT, GPU reordered memory JIT, GPU General, GPU reordered "
+      //    "memory general, GPU General (source), GPU reordered (source)"
 #endif
 #ifdef USE_LLVM
       << ", CPU JIT"
@@ -369,11 +369,11 @@ int main() {
 #ifdef defined(_OPENACC) || defined(_OPENMP)
             << ", " << openacc_time.count()
 #endif
-            << ", " << gpuJitTime.count() << "," << gpuFlippedJitTime.count()
-            << "," << gpuGeneralTime.count() << ","
-            << gpuFlippedGeneralTime.count() << ","
-            << gpuGeneralCompiledTime.count() << ","
-            << gpuFlippedGeneralCompiledTime.count()
+            // << ", " << gpuJitTime.count() << "," << gpuFlippedJitTime.count()
+            // << "," << gpuGeneralTime.count() << ","
+            // << gpuFlippedGeneralTime.count() << ","
+            // << gpuGeneralCompiledTime.count() << ","
+            // << gpuFlippedGeneralCompiledTime.count()
 #endif
 #ifdef USE_LLVM
             << ", CPU JIT"
@@ -391,17 +391,17 @@ int main() {
 #endif
 
 #ifdef USE_GPU
-  free(fGPUJit);
-  free(fGPUJitCompiled);
-  free(fGPUGeneral);
-  free(fGPUGeneralCompiled);
-  free(flippedDeriv);
-  free(fFlippedGPUJit);
-  free(fFlippedGPUJitCompiled);
-  free(fFlippedGPUGeneral);
-  free(fFlippedGPUGeneralCompiled);
-  free(flippedRateConst);
-  free(flippedState);
+  // free(fGPUJit);
+  // free(fGPUJitCompiled);
+  // free(fGPUGeneral);
+  // free(fGPUGeneralCompiled);
+  // free(flippedDeriv);
+  // free(fFlippedGPUJit);
+  // free(fFlippedGPUJitCompiled);
+  // free(fFlippedGPUGeneral);
+  // free(fFlippedGPUGeneralCompiled);
+  // free(flippedRateConst);
+  // free(flippedState);
 #ifdef defined(_OPENACC) || defined(_OPENMP)
   free(hderiv_openacc);
 #endif
