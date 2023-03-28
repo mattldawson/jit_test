@@ -15,7 +15,6 @@ std::chrono::duration<long, std::nano> deriv_openacc(ClassicDeriv cd,
                                                      double *state,
                                                      double *deriv) {
   // Perform the calculation on GPU/device
-  auto start = std::chrono::high_resolution_clock::now();
 
 #ifdef _OPENACC
 #pragma acc enter data copyin(                                                 \
@@ -35,6 +34,7 @@ std::chrono::duration<long, std::nano> deriv_openacc(ClassicDeriv cd,
                                       : deriv [0:cd.numSpec * cd.numCell])
 #endif
 
+  auto start = std::chrono::high_resolution_clock::now();
 #ifdef _OPENACC
 #pragma acc parallel default(present)
 #pragma loop gang vector vector_length(VECTOR_LENGTH)
