@@ -305,7 +305,7 @@ int main() {
   // cudaFlippedGeneralDeriv.OutputCuda("general_flipped.cu");
 #endif
 
-#ifdef defined(_OPENACC) || defined(_OPENMP)
+#ifdef _OPENACC || defined(_OPENMP)
   double *hderiv_openacc;
   hderiv_openacc = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell,
                                     sizeof(double));
@@ -353,7 +353,7 @@ int main() {
   std::cout
       << "Cells, Reactions, Species, Classic, Preprocessed"
 #ifdef USE_GPU
-#ifdef defined(_OPENACC) || defined(_OPENMP)
+#ifdef _OPENACC || defined(_OPENMP)
       << ", OpenACC" <<
 #endif
       // << ", GPU JIT, GPU reordered memory JIT, GPU General, GPU reordered "
@@ -367,7 +367,7 @@ int main() {
   std::cout << NUM_CELLS << "," << NUM_RXNS << ", " << NUM_SPEC << ", "
             << classicTime.count() << "," << preprocessedTime.count()
 #ifdef USE_GPU
-#ifdef defined(_OPENACC) || defined(_OPENMP)
+#ifdef _OPENACC || defined(_OPENMP)
             << ", " << openacc_time.count()
 #endif
             // << ", " << gpuJitTime.count() << "," << gpuFlippedJitTime.count()
@@ -403,7 +403,7 @@ int main() {
   // free(fFlippedGPUGeneralCompiled);
   // free(flippedRateConst);
   // free(flippedState);
-#ifdef defined(_OPENACC) || defined(_OPENMP)
+#ifdef _OPENACC || defined(_OPENMP)
   free(hderiv_openacc);
 #endif
 #endif
