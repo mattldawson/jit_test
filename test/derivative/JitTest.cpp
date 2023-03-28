@@ -18,6 +18,7 @@
 #ifdef USE_GPU
 #include "CudaGeneralDeriv.h"
 #include "CudaJitDeriv.h"
+#include <openacc.h>
 #endif
 #include "FortranPreproccessed.h"
 #include "deriv_openacc.h"
