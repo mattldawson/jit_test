@@ -27,6 +27,12 @@
 #include <iostream>
 #include <stdlib.h>
 
+#if defined(_OPENACC) || defined(_OPENMP)
+#define ACCELERATOR_ENABLED 1
+#else
+#define ACCELERATOR_ENABLED 0
+#endif
+
 #ifndef NUM_REPEAT
 #define NUM_REPEAT 10000
 #endif
@@ -305,7 +311,7 @@ int main() {
   // cudaFlippedGeneralDeriv.OutputCuda("general_flipped.cu");
 #endif
 
-#ifdef _OPENACC || defined(_OPENMP)
+#ifdef ACCELERATOR_ENABLED
   double *hderiv_openacc;
   hderiv_openacc = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell,
                                     sizeof(double));
@@ -353,7 +359,7 @@ int main() {
   std::cout
       << "Cells, Reactions, Species, Classic, Preprocessed"
 #ifdef USE_GPU
-#ifdef _OPENACC || defined(_OPENMP)
+#ifdef ACCELERATOR_ENABLED
       << ", OpenACC" <<
 #endif
       // << ", GPU JIT, GPU reordered memory JIT, GPU General, GPU reordered "
@@ -367,7 +373,7 @@ int main() {
   std::cout << NUM_CELLS << "," << NUM_RXNS << ", " << NUM_SPEC << ", "
             << classicTime.count() << "," << preprocessedTime.count()
 #ifdef USE_GPU
-#ifdef _OPENACC || defined(_OPENMP)
+#ifdef ACCELERATOR_ENABLED
             << ", " << openacc_time.count()
 #endif
             // << ", " << gpuJitTime.count() << "," << gpuFlippedJitTime.count()
@@ -403,7 +409,7 @@ int main() {
   // free(fFlippedGPUGeneralCompiled);
   // free(flippedRateConst);
   // free(flippedState);
-#ifdef _OPENACC || defined(_OPENMP)
+#ifdef ACCELERATOR_ENABLED
   free(hderiv_openacc);
 #endif
 #endif
