@@ -360,7 +360,7 @@ int main() {
       << "Cells, Reactions, Species, Classic, Preprocessed"
 #ifdef USE_GPU
 #ifdef ACCELERATOR_ENABLED
-      << ", OpenACC" <<
+      << ", OpenACC"
 #endif
       // << ", GPU JIT, GPU reordered memory JIT, GPU General, GPU reordered "
       //    "memory general, GPU General (source), GPU reordered (source)"
