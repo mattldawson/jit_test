@@ -55,13 +55,13 @@ std::chrono::duration<long, std::nano> deriv_openacc(ClassicDeriv cd,
         deriv[i_cell * NUM_SPEC + hprodId[i_rxn][i_prod]] += rate;
     }
   }
+  auto stop = std::chrono::high_resolution_clock::now();
 
 #ifdef _OPENACC
 #pragma acc exit data copyout(deriv [0:cd.numSpec * cd.numCell])
 #elif defined(_OPENMP)
 #pragma omp target exit data map(from : deriv [0:cd.numSpec * cd.numCell])
 #endif
-  auto stop = std::chrono::high_resolution_clock::now();
 
   return std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
 }
