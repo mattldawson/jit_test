@@ -397,18 +397,18 @@ int main() {
   time_durations["Species"] = NUM_SPEC;
 
   // the headers
-  for (auto it = my_map.begin(); it != my_map.end(); ++it) {
+  for (auto it = time_durations.begin(); it != time_durations.end(); ++it) {
     std::cout << it->first;
-    if (std::next(it) != my_map.end()) {
+    if (std::next(it) != time_durations.end()) {
       std::cout << ",";
     }
   }
 
   // the row values
   std::cout << std::endl;
-  for (auto it = my_map.begin(); it != my_map.end(); ++it) {
+  for (auto it = time_durations.begin(); it != time_durations.end(); ++it) {
     std::cout << it->second;
-    if (std::next(it) != my_map.end()) {
+    if (std::next(it) != time_durations.end()) {
       std::cout << ",";
     }
   }
