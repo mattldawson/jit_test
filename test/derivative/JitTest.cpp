@@ -85,7 +85,7 @@ int main() {
     classicDeriv.Solve(rateConst, state, fClassic);
   auto stop = std::chrono::high_resolution_clock::now();
 
-  time_durations['Classic'] =
+  time_durations["Classic"] =
       std::chrono::duration_cast<duration>(stop - start).count();
 
   // CPU Jit Derivative
@@ -99,7 +99,7 @@ int main() {
   jitDeriv.DerivCodeGen(classicDeriv);
   stop = std::chrono::high_resolution_clock::now();
 
-  time_durations['CPU JIT Compile Time'] =
+  time_durations["CPU JIT Compile Time"] =
       std::chrono::duration_cast<duration>(stop - start).count();
 
   start = std::chrono::high_resolution_clock::now();
@@ -107,7 +107,7 @@ int main() {
     jitDeriv.Solve(rateConst, state, fJit);
   stop = std::chrono::high_resolution_clock::now();
 
-  time_durations['CPU JIT Time'] =
+  time_durations["CPU JIT Time"] =
       std::chrono::duration_cast<duration>(stop - start).count();
 #endif
 
@@ -117,7 +117,7 @@ int main() {
     preprocessed_solve(rateConst, state, fPreprocessed);
   stop = std::chrono::high_resolution_clock::now();
 
-  time_durations['CPU Preprocessed Time'] =
+  time_durations["CPU Preprocessed Time"] =
       std::chrono::duration_cast<duration>(stop - start).count();
 
   // GPU Jit Derivative
@@ -125,7 +125,7 @@ int main() {
   start = std::chrono::high_resolution_clock::now();
   CudaJitDeriv cudaJitDeriv(classicDeriv, false);
   stop = std::chrono::high_resolution_clock::now();
-  time_durations['GPU JIT Compile Time'] =
+  time_durations["GPU JIT Compile Time"] =
       std::chrono::duration_cast<duration>(stop - start).count();
   double *fGPUJit;
   fGPUJit = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell,
@@ -137,7 +137,7 @@ int main() {
     gpuJitTime +=
         cudaJitDeriv.Solve(rateConst, state, fGPUJit, classicDeriv.numCell);
 
-  time_durations['GPU JIT Time'] = gpuJitTime.count();
+  time_durations["GPU JIT Time"] = gpuJitTime.count();
 
 #ifdef USE_COMPILED
   // GPU Jit Derivative (from source)
@@ -150,7 +150,7 @@ int main() {
     cudaJitDeriv.SolveCompiled(rateConst, state, fGPUJitCompiled,
                                classicDeriv.numCell);
   stop = std::chrono::high_resolution_clock::now();
-  time_durations['GPU Preprocessed Time'] =
+  time_durations["GPU Preprocessed Time"] =
       std::chrono::duration_cast<duration>(stop - start).count();
 #endif
 
@@ -158,7 +158,7 @@ int main() {
   start = std::chrono::high_resolution_clock::now();
   CudaGeneralDeriv cudaGeneralDeriv(classicDeriv, false);
   stop = std::chrono::high_resolution_clock::now();
-  time_durations['GPU General Compile Time'] =
+  time_durations["GPU General Compile Time"] =
       std::chrono::duration_cast<duration>(stop - start).count();
   double *fGPUGeneral;
   fGPUGeneral = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell,
@@ -170,7 +170,7 @@ int main() {
     gpuGeneralTime +=
         cudaGeneralDeriv.Solve(rateConst, state, fGPUGeneral, classicDeriv);
 
-  time_durations['GPU General Time'] = gpuGeneralTime.count();
+  time_durations["GPU General Time"] = gpuGeneralTime.count();
 
 #ifdef USE_COMPILED
   // General GPU derivative (from source)
@@ -183,7 +183,7 @@ int main() {
     cudaGeneralDeriv.SolveCompiled(rateConst, state, fGPUGeneralCompiled,
                                    classicDeriv);
   stop = std::chrono::high_resolution_clock::now();
-  time_durations['GPU General From Source Time'] =
+  time_durations["GPU General From Source Time"] =
       std::chrono::duration_cast<duration>(stop - start).count();
 #endif
 
@@ -203,7 +203,7 @@ int main() {
   start = std::chrono::high_resolution_clock::now();
   CudaJitDeriv cudaFlippedJitDeriv(classicDeriv, true);
   stop = std::chrono::high_resolution_clock::now();
-  time_durations['GPU JIT Coallesced Access Compile Time'] =
+  time_durations["GPU JIT Coallesced Access Compile Time"] =
       std::chrono::duration_cast<duration>(stop - start).count();
   double *fFlippedGPUJit;
   fFlippedGPUJit = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell,
@@ -229,7 +229,7 @@ int main() {
             flippedDeriv[i_cell + classicDeriv.numCell * i_spec];
     }
   }
-  time_durations['GPU JIT Coallesced Access'] = gpuFlippedJitTime.count();
+  time_durations["GPU JIT Coallesced Access"] = gpuFlippedJitTime.count();
 
 #ifdef USE_COMPILED
   // Reordered memory GPU derivative (from source)
@@ -257,7 +257,7 @@ int main() {
     }
   }
   stop = std::chrono::high_resolution_clock::now();
-  time_durations['GPU Coallesced Access From Source'] =
+  time_durations["GPU Coallesced Access From Source"] =
       std::chrono::duration_cast<duration>(stop - start).count();
 #endif
 
@@ -291,7 +291,7 @@ int main() {
             flippedDeriv[i_cell + classicDeriv.numCell * i_spec];
     }
   }
-  time_durations['GPU General JIT Coallesced'] = gpuFlippedGeneralTime.count();
+  time_durations["GPU General JIT Coallesced"] = gpuFlippedGeneralTime.count();
 
 #ifdef USE_COMPILED
   // Reordered memory General GPU derivative (from source)
@@ -319,7 +319,7 @@ int main() {
     }
   }
   stop = std::chrono::high_resolution_clock::now();
-  time_durations['GPU General From Source Coallesced'] =
+  time_durations["GPU General From Source Coallesced"] =
       std::chrono::duration_cast<duration>(stop - start).count();
 #endif
 
@@ -338,7 +338,7 @@ int main() {
   for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
     openacc_time +=
         deriv_openacc(classicDeriv, rateConst, state, hderiv_openacc);
-  time_durations['OpenACC'] = openacc_time.count();
+  time_durations["OpenACC"] = openacc_time.count();
 #endif
 
   for (int i_cell = 0; i_cell < classicDeriv.numCell; ++i_cell) {
