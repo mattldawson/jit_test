@@ -378,20 +378,6 @@ int main() {
     }
   }
 
-  std::cout
-      << "Cells, Reactions, Species, Classic, Preprocessed"
-#ifdef USE_GPU
-#ifdef ACCELERATOR_ENABLED
-      << ", OpenACC"
-#endif
-      << ", GPU JIT, GPU reordered memory JIT, GPU General, GPU reordered "
-         "memory general, GPU General (source), GPU reordered (source)"
-#endif
-#ifdef USE_LLVM
-      << ", CPU JIT"
-#endif
-      << std::endl;
-
   time_durations["Cells"] = NUM_CELLS;
   time_durations["Reactions"] = NUM_RXNS;
   time_durations["Species"] = NUM_SPEC;
