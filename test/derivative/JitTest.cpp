@@ -146,21 +146,21 @@ int main() {
   auto gpuJitCompiledTime =
       std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
-  // // General GPU derivative
-  // start = std::chrono::high_resolution_clock::now();
-  // CudaGeneralDeriv cudaGeneralDeriv(classicDeriv, false);
-  // stop = std::chrono::high_resolution_clock::now();
-  // auto gpuGeneralCompileTime =
-  //     std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-  // double *fGPUGeneral;
-  // fGPUGeneral = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell,
-  //                                sizeof(double));
+  // General GPU derivative
+  start = std::chrono::high_resolution_clock::now();
+  CudaGeneralDeriv cudaGeneralDeriv(classicDeriv, false);
+  stop = std::chrono::high_resolution_clock::now();
+  auto gpuGeneralCompileTime =
+      std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
+  double *fGPUGeneral;
+  fGPUGeneral = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell,
+                                 sizeof(double));
 
-  // std::chrono::duration<long, std::nano> gpuGeneralTime =
-  //     std::chrono::nanoseconds::zero();
-  // for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
-  //   gpuGeneralTime +=
-  //       cudaGeneralDeriv.Solve(rateConst, state, fGPUGeneral, classicDeriv);
+  std::chrono::duration<long, std::nano> gpuGeneralTime =
+      std::chrono::nanoseconds::zero();
+  for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
+    gpuGeneralTime +=
+        cudaGeneralDeriv.Solve(rateConst, state, fGPUGeneral, classicDeriv);
 
   // // General GPU derivative (from source)
   // double *fGPUGeneralCompiled;
