@@ -17,8 +17,7 @@ std::chrono::duration<long, std::nano> deriv_openacc(ClassicDeriv cd,
   // Perform the calculation on GPU/device
 
 #ifdef _OPENACC
-#pragma acc enter data copyin(                                                 \
-    cd                                                                         \
+#pragma acc enter data copyin(cd,                                              \
     rateConst [0:cd.numRxns * cd.numCell], state [0:cd.numCell * cd.numCell],  \
     cd.numReact [0:cd.numRxns], cd.numProd [0:cd.numRxns],                     \
     cd.reactId [0:cd.numRxns] [0:MAX_REACT],                                   \
@@ -27,7 +26,7 @@ std::chrono::duration<long, std::nano> deriv_openacc(ClassicDeriv cd,
 #elif defined(_OPENMP)
 #pragma omp target enter data map(                                             \
     to                                                                         \
-    : rateConst [0:cd.numRxns * cd.numCell],                                   \
+    : cd, rateConst [0:cd.numRxns * cd.numCell],                               \
       state [0:cd.numCell * cd.numCell], cd.numReact [0:cd.numRxns],           \
       cd.numProd [0:cd.numRxns], cd.reactId [0:cd.numRxns] [0:MAX_REACT],      \
       cd.prodId                                                                \
