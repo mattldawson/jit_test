@@ -386,18 +386,19 @@ int main() {
   for (auto it = time_durations.begin(); it != time_durations.end(); ++it) {
     std::cout << it->first;
     if (std::next(it) != time_durations.end()) {
-      std::cout << ",";
+      std::cout << ", ";
     }
   }
+  std::cout << std::endl;
 
   // the row values
-  std::cout << std::endl;
   for (auto it = time_durations.begin(); it != time_durations.end(); ++it) {
     std::cout << it->second;
     if (std::next(it) != time_durations.end()) {
-      std::cout << ",";
+      std::cout << ", ";
     }
   }
+  std::cout << std::endl;
 
   free(rateConst);
   free(state);
