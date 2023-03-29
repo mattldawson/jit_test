@@ -25,6 +25,7 @@
 #include <assert.h>
 #include <chrono>
 #include <iostream>
+#include <map>
 #include <stdlib.h>
 
 #if defined(_OPENACC) || defined(_OPENMP)
@@ -46,6 +47,8 @@ bool close_enough(const double &first, const double &second,
 
 using duration = std::chrono::nanoseconds;
 int main() {
+
+  std::map<std::string, long long> time_durations;
 
 #ifdef USE_LLVM
   llvm::InitializeNativeTarget();
@@ -82,8 +85,8 @@ int main() {
     classicDeriv.Solve(rateConst, state, fClassic);
   auto stop = std::chrono::high_resolution_clock::now();
 
-  auto classicTime =
-      std::chrono::duration_cast<duration>(stop - start);
+  time_durations['Classic'] =
+      std::chrono::duration_cast<duration>(stop - start).count();
 
   // CPU Jit Derivative
 #ifdef USE_LLVM
@@ -96,16 +99,16 @@ int main() {
   jitDeriv.DerivCodeGen(classicDeriv);
   stop = std::chrono::high_resolution_clock::now();
 
-  auto jitCompileTime =
-      std::chrono::duration_cast<duration>(stop - start);
+  time_durations['CPU JIT Compile Time'] =
+      std::chrono::duration_cast<duration>(stop - start).count();
 
   start = std::chrono::high_resolution_clock::now();
   for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
     jitDeriv.Solve(rateConst, state, fJit);
   stop = std::chrono::high_resolution_clock::now();
 
-  auto jitTime =
-      std::chrono::duration_cast<duration>(stop - start);
+  time_durations['CPU JIT Time'] =
+      std::chrono::duration_cast<duration>(stop - start).count();
 #endif
 
   // Fortran Preprocessed Derivative
@@ -114,16 +117,16 @@ int main() {
     preprocessed_solve(rateConst, state, fPreprocessed);
   stop = std::chrono::high_resolution_clock::now();
 
-  auto preprocessedTime =
-      std::chrono::duration_cast<duration>(stop - start);
+  time_durations['CPU Preprocessed Time'] =
+      std::chrono::duration_cast<duration>(stop - start).count();
 
   // GPU Jit Derivative
 #ifdef USE_GPU
   start = std::chrono::high_resolution_clock::now();
   CudaJitDeriv cudaJitDeriv(classicDeriv, false);
   stop = std::chrono::high_resolution_clock::now();
-  auto gpuJitCompileTime =
-      std::chrono::duration_cast<duration>(stop - start);
+  time_durations['GPU JIT Compile Time'] =
+      std::chrono::duration_cast<duration>(stop - start).count();
   double *fGPUJit;
   fGPUJit = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell,
                              sizeof(double));
@@ -134,6 +137,9 @@ int main() {
     gpuJitTime +=
         cudaJitDeriv.Solve(rateConst, state, fGPUJit, classicDeriv.numCell);
 
+  time_durations['GPU JIT Time'] = gpuJitTime.count();
+
+#ifdef USE_COMPILED
   // GPU Jit Derivative (from source)
   double *fGPUJitCompiled;
   fGPUJitCompiled = (double *)calloc(
@@ -144,15 +150,16 @@ int main() {
     cudaJitDeriv.SolveCompiled(rateConst, state, fGPUJitCompiled,
                                classicDeriv.numCell);
   stop = std::chrono::high_resolution_clock::now();
-  auto gpuJitCompiledTime =
-      std::chrono::duration_cast<duration>(stop - start);
+  time_durations['GPU Preprocessed Time'] =
+      std::chrono::duration_cast<duration>(stop - start).count();
+#endif
 
   // General GPU derivative
   start = std::chrono::high_resolution_clock::now();
   CudaGeneralDeriv cudaGeneralDeriv(classicDeriv, false);
   stop = std::chrono::high_resolution_clock::now();
-  auto gpuGeneralCompileTime =
-      std::chrono::duration_cast<duration>(stop - start);
+  time_durations['GPU General Compile Time'] =
+      std::chrono::duration_cast<duration>(stop - start).count();
   double *fGPUGeneral;
   fGPUGeneral = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell,
                                  sizeof(double));
@@ -163,6 +170,9 @@ int main() {
     gpuGeneralTime +=
         cudaGeneralDeriv.Solve(rateConst, state, fGPUGeneral, classicDeriv);
 
+  time_durations['GPU General Time'] = gpuGeneralTime.count();
+
+#ifdef USE_COMPILED
   // General GPU derivative (from source)
   double *fGPUGeneralCompiled;
   fGPUGeneralCompiled = (double *)calloc(
@@ -173,8 +183,9 @@ int main() {
     cudaGeneralDeriv.SolveCompiled(rateConst, state, fGPUGeneralCompiled,
                                    classicDeriv);
   stop = std::chrono::high_resolution_clock::now();
-  auto gpuGeneralCompiledTime =
-      std::chrono::duration_cast<duration>(stop - start);
+  time_durations['GPU General From Source Time'] =
+      std::chrono::duration_cast<duration>(stop - start).count();
+#endif
 
   // Reordered memory array setup
   double *flippedRateConst;
@@ -192,8 +203,8 @@ int main() {
   start = std::chrono::high_resolution_clock::now();
   CudaJitDeriv cudaFlippedJitDeriv(classicDeriv, true);
   stop = std::chrono::high_resolution_clock::now();
-  auto gpuFlippedJitCompileTime =
-      std::chrono::duration_cast<duration>(stop - start);
+  time_durations['GPU JIT Coallesced Access Compile Time'] =
+      std::chrono::duration_cast<duration>(stop - start).count();
   double *fFlippedGPUJit;
   fFlippedGPUJit = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell,
                                     sizeof(double));
@@ -218,8 +229,10 @@ int main() {
             flippedDeriv[i_cell + classicDeriv.numCell * i_spec];
     }
   }
+  time_durations['GPU JIT Coallesced Access'] = gpuFlippedJitTime.count();
 
-  // Reordered memory GPU JIT derivative
+#ifdef USE_COMPILED
+  // Reordered memory GPU derivative (from source)
   double *fFlippedGPUJitCompiled;
   fFlippedGPUJitCompiled = (double *)calloc(
       classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
@@ -244,8 +257,9 @@ int main() {
     }
   }
   stop = std::chrono::high_resolution_clock::now();
-  auto gpuFlippedJitCompiledTime =
-      std::chrono::duration_cast<duration>(stop - start);
+  time_durations['GPU Coallesced Access From Source'] =
+      std::chrono::duration_cast<duration>(stop - start).count();
+#endif
 
   // Reordered memory General GPU derivative
   start = std::chrono::high_resolution_clock::now();
@@ -277,7 +291,9 @@ int main() {
             flippedDeriv[i_cell + classicDeriv.numCell * i_spec];
     }
   }
+  time_durations['GPU General JIT Coallesced'] = gpuFlippedGeneralTime.count();
 
+#ifdef USE_COMPILED
   // Reordered memory General GPU derivative (from source)
   double *fFlippedGPUGeneralCompiled;
   fFlippedGPUGeneralCompiled = (double *)calloc(
@@ -303,8 +319,9 @@ int main() {
     }
   }
   stop = std::chrono::high_resolution_clock::now();
-  auto gpuFlippedGeneralCompiledTime =
-      std::chrono::duration_cast<duration>(stop - start);
+  time_durations['GPU General From Source Coallesced'] =
+      std::chrono::duration_cast<duration>(stop - start).count();
+#endif
 
   cudaJitDeriv.OutputCuda("jit.cu");
   cudaFlippedJitDeriv.OutputCuda("jit_flipped.cu");
@@ -316,10 +333,12 @@ int main() {
   double *hderiv_openacc;
   hderiv_openacc = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell,
                                     sizeof(double));
-  std::chrono::duration<long, std::nano> openacc_time = std::chrono::nanoseconds::zero();
+  std::chrono::duration<long, std::nano> openacc_time =
+      std::chrono::nanoseconds::zero();
   for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
     openacc_time +=
-      deriv_openacc(classicDeriv, rateConst, state, hderiv_openacc);
+        deriv_openacc(classicDeriv, rateConst, state, hderiv_openacc);
+  time_durations['OpenACC'] = openacc_time.count();
 #endif
 
   for (int i_cell = 0; i_cell < classicDeriv.numCell; ++i_cell) {
@@ -344,16 +363,18 @@ int main() {
 #ifdef USE_LLVM
       assert(fClassic[i] == fJit[i]);
 #endif
-// #ifdef USE_GPU
-//       assert(close_enough(fClassic[i], fGPUJit[i]));
-//       assert(close_enough(fClassic[i], fGPUJitCompiled[i]));
-//       assert(close_enough(fClassic[i], fFlippedGPUJit[i]));
-//       assert(close_enough(fClassic[i], fFlippedGPUJitCompiled[i]));
-//       assert(close_enough(fClassic[i], fGPUGeneral[i]));
-//       assert(close_enough(fClassic[i], fGPUGeneralCompiled[i]));
-//       assert(close_enough(fClassic[i], fFlippedGPUGeneral[i]));
-//       assert(close_enough(fClassic[i], fFlippedGPUGeneralCompiled[i]));
-// #endif
+#ifdef USE_GPU
+      assert(close_enough(fClassic[i], fGPUJit[i]));
+      assert(close_enough(fClassic[i], fFlippedGPUJit[i]));
+      assert(close_enough(fClassic[i], fGPUGeneral[i]));
+      assert(close_enough(fClassic[i], fFlippedGPUGeneral[i]));
+#ifdef USE_COMPILED
+      assert(close_enough(fClassic[i], fFlippedGPUGeneralCompiled[i]));
+      assert(close_enough(fClassic[i], fFlippedGPUJitCompiled[i]));
+      assert(close_enough(fClassic[i], fGPUGeneralCompiled[i]));
+      assert(close_enough(fClassic[i], fGPUJitCompiled[i]));
+#endif
+#endif
     }
   }
 
@@ -371,22 +392,26 @@ int main() {
 #endif
       << std::endl;
 
-  std::cout << NUM_CELLS << "," << NUM_RXNS << ", " << NUM_SPEC << ", "
-            << classicTime.count() << "," << preprocessedTime.count()
-#ifdef USE_GPU
-#ifdef ACCELERATOR_ENABLED
-            << ", " << openacc_time.count()
-#endif
-//             << ", " << gpuJitTime.count() << "," << gpuFlippedJitTime.count()
-//             << "," << gpuGeneralTime.count() << ","
-//             << gpuFlippedGeneralTime.count() << ","
-//             << gpuGeneralCompiledTime.count() << ","
-//             << gpuFlippedGeneralCompiledTime.count()
-#endif
-#ifdef USE_LLVM
-            << ", CPU JIT"
-#endif
-            << std::endl;
+  time_durations["Cells"] = NUM_CELLS;
+  time_durations["Reactions"] = NUM_RXNS;
+  time_durations["Species"] = NUM_SPEC;
+
+  // the headers
+  for (auto it = my_map.begin(); it != my_map.end(); ++it) {
+    std::cout << it->first;
+    if (std::next(it) != my_map.end()) {
+      std::cout << ",";
+    }
+  }
+
+  // the row values
+  std::cout << std::endl;
+  for (auto it = my_map.begin(); it != my_map.end(); ++it) {
+    std::cout << it->second;
+    if (std::next(it) != my_map.end()) {
+      std::cout << ",";
+    }
+  }
 
   free(rateConst);
   free(state);
@@ -398,22 +423,24 @@ int main() {
   free(fJit);
 #endif
 
-// #ifdef USE_GPU
-//   free(fGPUJit);
-//   free(fGPUJitCompiled);
-//   free(fGPUGeneral);
-//   free(fGPUGeneralCompiled);
-//   free(flippedDeriv);
-//   free(fFlippedGPUJit);
-//   free(fFlippedGPUJitCompiled);
-//   free(fFlippedGPUGeneral);
-//   free(fFlippedGPUGeneralCompiled);
-//   free(flippedRateConst);
-//   free(flippedState);
-// #ifdef ACCELERATOR_ENABLED
-//   free(hderiv_openacc);
-// #endif
-// #endif
+#ifdef USE_GPU
+  free(fGPUJit);
+  free(fGPUGeneral);
+  free(flippedDeriv);
+  free(fFlippedGPUJit);
+  free(fFlippedGPUGeneral);
+  free(flippedRateConst);
+  free(flippedState);
+#ifdef USE_COMPILED
+  free(fGPUJitCompiled);
+  free(fGPUGeneralCompiled);
+  free(fFlippedGPUJitCompiled);
+  free(fFlippedGPUGeneralCompiled);
+#endif
+#ifdef ACCELERATOR_ENABLED
+  free(hderiv_openacc);
+#endif
+#endif
 
   return 0;
 }
