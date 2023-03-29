@@ -375,12 +375,12 @@ int main() {
 #ifdef USE_GPU
 #ifdef ACCELERATOR_ENABLED
             << ", " << openacc_time.count()
-#endif
-            << ", " << gpuJitTime.count() << "," << gpuFlippedJitTime.count()
-            << "," << gpuGeneralTime.count() << ","
-            << gpuFlippedGeneralTime.count() << ","
-            << gpuGeneralCompiledTime.count() << ","
-            << gpuFlippedGeneralCompiledTime.count()
+// #endif
+//             << ", " << gpuJitTime.count() << "," << gpuFlippedJitTime.count()
+//             << "," << gpuGeneralTime.count() << ","
+//             << gpuFlippedGeneralTime.count() << ","
+//             << gpuGeneralCompiledTime.count() << ","
+//             << gpuFlippedGeneralCompiledTime.count()
 #endif
 #ifdef USE_LLVM
             << ", CPU JIT"
