@@ -219,7 +219,7 @@ int main() {
     }
   }
 
-  Reordered memory GPU JIT derivative
+  // Reordered memory GPU JIT derivative
   double *fFlippedGPUJitCompiled;
   fFlippedGPUJitCompiled = (double *)calloc(
       classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
