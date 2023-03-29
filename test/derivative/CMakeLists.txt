@@ -38,7 +38,7 @@ if(ENABLE_GPU)
   )
 
   target_link_libraries(derivative_test OpenACC::OpenACC_CXX)
-  target_compile_options(derivative_test PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-gencode arch=compute_100,code=sm_100>)
+  target_compile_options(derivative_test PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-gencode arch=compute_70,code=sm_70>)
 endif()
 
 add_test(NAME derivative COMMAND derivative_test)
