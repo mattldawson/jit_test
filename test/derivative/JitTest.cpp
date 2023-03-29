@@ -133,18 +133,18 @@ int main() {
     gpuJitTime +=
         cudaJitDeriv.Solve(rateConst, state, fGPUJit, classicDeriv.numCell);
 
-  // // GPU Jit Derivative (from source)
-  // double *fGPUJitCompiled;
-  // fGPUJitCompiled = (double *)calloc(
-  //     classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
+  // GPU Jit Derivative (from source)
+  double *fGPUJitCompiled;
+  fGPUJitCompiled = (double *)calloc(
+      classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
 
-  // start = std::chrono::high_resolution_clock::now();
-  // for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
-  //   cudaJitDeriv.SolveCompiled(rateConst, state, fGPUJitCompiled,
-  //                              classicDeriv.numCell);
-  // stop = std::chrono::high_resolution_clock::now();
-  // auto gpuJitCompiledTime =
-  //     std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+  start = std::chrono::high_resolution_clock::now();
+  for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
+    cudaJitDeriv.SolveCompiled(rateConst, state, fGPUJitCompiled,
+                               classicDeriv.numCell);
+  stop = std::chrono::high_resolution_clock::now();
+  auto gpuJitCompiledTime =
+      std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
   // // General GPU derivative
   // start = std::chrono::high_resolution_clock::now();
