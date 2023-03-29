@@ -36,7 +36,7 @@ set_property(TARGET derivative_test
 target_link_libraries(derivative_test ${llvm_libs} ${NVIDIA_LIBS})
 
 if(ENABLE_GPU)
-  target_link_libraries(derivative_test OpenACC::OpenACC_C)
+  target_link_libraries(derivative_test OpenACC::OpenACC_CXX)
 endif()
 
 add_test(NAME derivative COMMAND derivative_test)
