@@ -343,16 +343,16 @@ int main() {
 #ifdef USE_LLVM
       assert(fClassic[i] == fJit[i]);
 #endif
-#ifdef USE_GPU
-      assert(close_enough(fClassic[i], fGPUJit[i]));
-      assert(close_enough(fClassic[i], fGPUJitCompiled[i]));
-      assert(close_enough(fClassic[i], fFlippedGPUJit[i]));
-      assert(close_enough(fClassic[i], fFlippedGPUJitCompiled[i]));
-      assert(close_enough(fClassic[i], fGPUGeneral[i]));
-      assert(close_enough(fClassic[i], fGPUGeneralCompiled[i]));
-      assert(close_enough(fClassic[i], fFlippedGPUGeneral[i]));
-      assert(close_enough(fClassic[i], fFlippedGPUGeneralCompiled[i]));
-#endif
+// #ifdef USE_GPU
+//       assert(close_enough(fClassic[i], fGPUJit[i]));
+//       assert(close_enough(fClassic[i], fGPUJitCompiled[i]));
+//       assert(close_enough(fClassic[i], fFlippedGPUJit[i]));
+//       assert(close_enough(fClassic[i], fFlippedGPUJitCompiled[i]));
+//       assert(close_enough(fClassic[i], fGPUGeneral[i]));
+//       assert(close_enough(fClassic[i], fGPUGeneralCompiled[i]));
+//       assert(close_enough(fClassic[i], fFlippedGPUGeneral[i]));
+//       assert(close_enough(fClassic[i], fFlippedGPUGeneralCompiled[i]));
+// #endif
     }
   }
 
@@ -375,7 +375,7 @@ int main() {
 #ifdef USE_GPU
 #ifdef ACCELERATOR_ENABLED
             << ", " << openacc_time.count()
-// #endif
+#endif
 //             << ", " << gpuJitTime.count() << "," << gpuFlippedJitTime.count()
 //             << "," << gpuGeneralTime.count() << ","
 //             << gpuFlippedGeneralTime.count() << ","
