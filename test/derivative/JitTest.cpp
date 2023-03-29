@@ -397,22 +397,22 @@ int main() {
   free(fJit);
 #endif
 
-#ifdef USE_GPU
-  free(fGPUJit);
-  free(fGPUJitCompiled);
-  free(fGPUGeneral);
-  free(fGPUGeneralCompiled);
-  free(flippedDeriv);
-  free(fFlippedGPUJit);
-  free(fFlippedGPUJitCompiled);
-  free(fFlippedGPUGeneral);
-  free(fFlippedGPUGeneralCompiled);
-  free(flippedRateConst);
-  free(flippedState);
-#ifdef ACCELERATOR_ENABLED
-  free(hderiv_openacc);
-#endif
-#endif
+// #ifdef USE_GPU
+//   free(fGPUJit);
+//   free(fGPUJitCompiled);
+//   free(fGPUGeneral);
+//   free(fGPUGeneralCompiled);
+//   free(flippedDeriv);
+//   free(fFlippedGPUJit);
+//   free(fFlippedGPUJitCompiled);
+//   free(fFlippedGPUGeneral);
+//   free(fFlippedGPUGeneralCompiled);
+//   free(flippedRateConst);
+//   free(flippedState);
+// #ifdef ACCELERATOR_ENABLED
+//   free(hderiv_openacc);
+// #endif
+// #endif
 
   return 0;
 }
