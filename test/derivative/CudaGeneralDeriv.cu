@@ -105,6 +105,7 @@ std::chrono::duration<long, std::nano> CudaGeneralDeriv::SolveCompiled(double *r
 
   auto start = std::chrono::high_resolution_clock::now();
   // Call the function
+#ifdef USE_COMPILED
   if (this->flipped) {
     solve_general_flipped<<<CUDA_BLOCKS,CUDA_THREADS>>>(drateConst, dstate, dderiv,
         dnumReact, dnumProd, dreactId, dprodId, numcell, numrxn, numspec, maxreact, maxprod);
@@ -112,6 +113,7 @@ std::chrono::duration<long, std::nano> CudaGeneralDeriv::SolveCompiled(double *r
     solve_general<<<CUDA_BLOCKS,CUDA_THREADS>>>(drateConst, dstate, dderiv,
         dnumReact, dnumProd, dreactId, dprodId, numcell, numrxn, numspec, maxreact, maxprod);
   }
+#endif
   auto stop = std::chrono::high_resolution_clock::now();
   auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
 
