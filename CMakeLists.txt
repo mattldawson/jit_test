@@ -70,6 +70,8 @@ endif()
 # NVidia libraries
 
 if(ENABLE_GPU)
+  SET(CUDA_SEPARABLE_COMPILATION ON)
+
   find_library(NVRTC_LIB nvrtc
     DOC "NVidia RealTime Compiler library"
     PATHS $ENV{LD_LIBRARY_PATH}
