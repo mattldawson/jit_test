@@ -162,18 +162,18 @@ int main() {
     gpuGeneralTime +=
         cudaGeneralDeriv.Solve(rateConst, state, fGPUGeneral, classicDeriv);
 
-  // // General GPU derivative (from source)
-  // double *fGPUGeneralCompiled;
-  // fGPUGeneralCompiled = (double *)calloc(
-  //     classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
+  // General GPU derivative (from source)
+  double *fGPUGeneralCompiled;
+  fGPUGeneralCompiled = (double *)calloc(
+      classicDeriv.numSpec * classicDeriv.numCell, sizeof(double));
 
-  // start = std::chrono::high_resolution_clock::now();
-  // for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
-  //   cudaGeneralDeriv.SolveCompiled(rateConst, state, fGPUGeneralCompiled,
-  //                                  classicDeriv);
-  // stop = std::chrono::high_resolution_clock::now();
-  // auto gpuGeneralCompiledTime =
-  //     std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+  start = std::chrono::high_resolution_clock::now();
+  for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
+    cudaGeneralDeriv.SolveCompiled(rateConst, state, fGPUGeneralCompiled,
+                                   classicDeriv);
+  stop = std::chrono::high_resolution_clock::now();
+  auto gpuGeneralCompiledTime =
+      std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
   // // Reordered memory array setup
   // double *flippedRateConst;
