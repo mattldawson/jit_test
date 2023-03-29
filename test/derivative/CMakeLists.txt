@@ -26,9 +26,6 @@ target_sources(derivative_test
     deriv_openacc.cpp
 )
 
-set_property(TARGET derivative_test
-             PROPERTY CUDA_SEPARABLE_COMPILATION ON)
-
 target_link_libraries(derivative_test ${llvm_libs} ${NVIDIA_LIBS})
 
 if(ENABLE_GPU)
@@ -37,8 +34,12 @@ if(ENABLE_GPU)
       CudaJitDeriv.cu CudaGeneralDeriv.cu
   )
 
+  set_property(TARGET derivative_test
+    PROPERTY CUDA_SEPARABLE_COMPILATION ON
+             CUDA_ARCHITECTURES 70
+  )
+
   target_link_libraries(derivative_test OpenACC::OpenACC_CXX)
-  target_compile_options(derivative_test PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-gencode arch=compute_70,code=sm_70>)
 endif()
 
 add_test(NAME derivative COMMAND derivative_test)
