@@ -78,6 +78,8 @@ if(ENABLE_GPU)
     DOC "NVidia CUDA library"
     PATHS $ENV{LD_LIBRARY_PATH})
   set(NVIDIA_LIBS ${NVRTC_LIB} ${CUDA_LIB} "-c++libs")
+
+  find_package(OpenACC REQUIRED)
 endif( )
 
 ################################################################################
