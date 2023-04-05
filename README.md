@@ -25,3 +25,13 @@ cd /build
 ./test/derivative/derivative_test
 ./test/matrix-multiply/matrix_multiply_test
 ```
+
+On Casper, to run GPU tests:
+```
+module load cmake/3.22.0 gnu/12.1.0 cuda/11.4.0 nvhpc/22.2
+```
+
+You can build and run in an interactive session with:
+```
+execcasper -A ${MY_PROJECT} --ngpus=1 -l gpu_type=v100 -q gpudev
+```

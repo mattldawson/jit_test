@@ -330,15 +330,15 @@ int main() {
 #endif
 
 #ifdef ACCELERATOR_ENABLED
-  double *hderiv_openacc;
-  hderiv_openacc = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell,
+  double *fAccellerated;
+  fAccellerated = (double *)calloc(classicDeriv.numSpec * classicDeriv.numCell,
                                     sizeof(double));
   std::chrono::duration<long, std::nano> openacc_time =
       std::chrono::nanoseconds::zero();
   for (int i_rep = 0; i_rep < NUM_REPEAT; ++i_rep)
     openacc_time +=
-        deriv_openacc(classicDeriv, rateConst, state, hderiv_openacc);
-  time_durations["OpenACC"] = openacc_time.count();
+        deriv_openacc(classicDeriv, rateConst, state, fAccellerated);
+  time_durations["Accellerated"] = openacc_time.count();
 #endif
 
   for (int i_cell = 0; i_cell < classicDeriv.numCell; ++i_cell) {
@@ -373,6 +373,9 @@ int main() {
       assert(close_enough(fClassic[i], fFlippedGPUJitCompiled[i]));
       assert(close_enough(fClassic[i], fGPUGeneralCompiled[i]));
       assert(close_enough(fClassic[i], fGPUJitCompiled[i]));
+#endif
+#ifdef ACCELLERATOR_ENABLED
+      assert(close_enough(fClassic[i], fAccellerated[i]));
 #endif
 #endif
     }
@@ -425,7 +428,7 @@ int main() {
   free(fFlippedGPUGeneralCompiled);
 #endif
 #ifdef ACCELERATOR_ENABLED
-  free(hderiv_openacc);
+  free(fAccellerated);
 #endif
 #endif
 
