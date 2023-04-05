@@ -16,10 +16,6 @@ if(ENABLE_LLVM)
   set(LLVM_SRC JitDeriv.cpp)
 endif()
 
-if(ENABLE_GPU)
-  set(CUDA_SRC CudaJitDeriv.cu CudaGeneralDeriv.cu)
-endif()
-
 target_sources(derivative_test
   PUBLIC
     ${CMAKE_CURRENT_BINARY_DIR}/Fortran/preprocessed.F90
@@ -27,12 +23,26 @@ target_sources(derivative_test
     ${LLVM_SRC}
     ${CUDA_SRC}
     JitTest.cpp
+    deriv_openacc.cpp
 )
 
-set_property(TARGET derivative_test
-             PROPERTY CUDA_SEPARABLE_COMPILATION ON)
-
 target_link_libraries(derivative_test ${llvm_libs} ${NVIDIA_LIBS})
+
+if(ENABLE_GPU)
+  target_sources(derivative_test
+    PUBLIC
+      CudaJitDeriv.cu CudaGeneralDeriv.cu
+  )
+
+  set(CMAKE_CUDA_ARCHITECTURES 70 FORCE)
+
+  set_property(TARGET derivative_test
+    PROPERTY CUDA_SEPARABLE_COMPILATION ON
+             CUDA_ARCHITECTURES 70
+  )
+
+  target_link_libraries(derivative_test OpenACC::OpenACC_CXX)
+endif()
 
 add_test(NAME derivative COMMAND derivative_test)
 

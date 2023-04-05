@@ -1,15 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 project(JIT_TEST LANGUAGES CXX C Fortran)
 
-# connect fortran and c++
-# https://enccs.github.io/cmake-workshop/cxx-fortran/
-# https://github.com/ENCCS/cmake-workshop/blob/e47ac9b5197fc18db513e62ce3f1ac36357d3839/content/code/day-2/25_cxx-fortran/solution/src/math/CMakeLists.txt
-include(FortranCInterface)
-
 include(CMakeDependentOption)
-
-# if you are working with C++ and Fortran
-FortranCInterface_VERIFY(CXX)
 
 ################################################################################
 # Options
@@ -20,7 +12,7 @@ if(ENABLE_LLVM)
   add_compile_definitions(USE_LLVM)
 endif()
 cmake_dependent_option(ENABLE_GPU "Enable support for GPUs" ON "NOT ENABLE_LLVM" OFF)
-cmake_dependent_option(ENABLE_COMPILED "Include compiled GPU kernels in comparison" OFF "ENABLE_CUDA" OFF)
+cmake_dependent_option(ENABLE_COMPILED "Include compiled GPU kernels in comparison" OFF "ENABLE_GPU" OFF)
 if(ENABLE_GPU)
   set (CMAKE_CXX_STANDARD 11)
   enable_language(CUDA)
@@ -35,7 +27,7 @@ set(NCELLS "100" CACHE STRING "Number of model grid cells")
 set(NREACTIONS "500" CACHE STRING "Number of reactions to simulate")
 set(NSPECIES "200" CACHE STRING "Number of species to simulate")
 set(NITERATIONS "1" CACHE STRING "Number of iterations to run the simulate")
-math(EXPR CUDA_BLOCKS "${NCELLS} / ${CUDA_THREADS}")
+math(EXPR CUDA_BLOCKS "(${NCELLS} + ${CUDA_THREADS} - 1) / ${CUDA_THREADS}")
 message(STATUS "Running with ${CUDA_BLOCKS} blocks")
 add_compile_definitions(NUM_RXNS=${NREACTIONS} NUM_SPEC=${NSPECIES} NUM_REPEAT=${NITERATIONS}
                         CUDA_THREADS=${CUDA_THREADS} CUDA_BLOCKS=${CUDA_BLOCKS} NUM_CELLS=${NCELLS})
@@ -78,6 +70,8 @@ if(ENABLE_GPU)
     DOC "NVidia CUDA library"
     PATHS $ENV{LD_LIBRARY_PATH})
   set(NVIDIA_LIBS ${NVRTC_LIB} ${CUDA_LIB} "-c++libs")
+
+  find_package(OpenACC REQUIRED)
 endif( )
 
 ################################################################################
