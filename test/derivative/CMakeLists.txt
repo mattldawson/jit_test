@@ -34,6 +34,8 @@ if(ENABLE_GPU)
       CudaJitDeriv.cu CudaGeneralDeriv.cu
   )
 
+  set(CMAKE_CUDA_ARCHITECTURES 70 FORCE)
+
   set_property(TARGET derivative_test
     PROPERTY CUDA_SEPARABLE_COMPILATION ON
              CUDA_ARCHITECTURES 70
